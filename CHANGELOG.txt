@@ -1,0 +1,10 @@
+// $Id$
+
+Libraries x.x-x.x, xxxx-xx-xx
+-----------------------------
+
+
+Libraries 6.x-1.x, xxxx-xx-xx
+-----------------------------
+#320562 by sun: Added basic functions.
+
