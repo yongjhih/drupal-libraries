@@ -25,14 +25,16 @@ function libraries_get_path($library, $base_path = FALSE) {
   if (!isset($libraries)) {
     $libraries = libraries_get_libraries();
   }
+
+  $path = ($base_path ? base_path() : '');
   if (!isset($libraries[$library])) {
     // Most often, external libraries can be shared across multiple sites, so
     // we return sites/all/libraries as the default path.
-    return 'sites/all/libraries/' . $library;
+    $path .= 'sites/all/libraries/' . $library;
   }
-
-  $path = ($base_path ? base_path() : '');
-  $path .= $libraries[$library];
+  else {
+    $path .= $libraries[$library];
+  }
 
   return $path;
 }
