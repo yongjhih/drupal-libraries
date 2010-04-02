@@ -71,6 +71,11 @@ function libraries_get_libraries() {
   $searchdir = array();
   $config = conf_path();
 
+  // Similar to 'modules' and 'themes' directories in the root directory,
+  // certain distributions may want to place libraries into a 'libraries'
+  // directory in Drupal's root directory.
+  $searchdir[] = $directory;
+
   // The 'profiles' directory contains pristine collections of modules and
   // themes as organized by a distribution.  It is pristine in the same way
   // that /modules is pristine for core; users should avoid changing anything

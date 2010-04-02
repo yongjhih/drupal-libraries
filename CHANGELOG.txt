@@ -6,6 +6,7 @@ Libraries x.x-x.x, xxxx-xx-xx
 
 Libraries 6.x-1.x, xxxx-xx-xx
 -----------------------------
+#496732 by tstoeckler, robphillips: Allow placing libraries in root directory.
 
 
 Libraries 6.x-1.0-ALPHA1, 2009-12-30
