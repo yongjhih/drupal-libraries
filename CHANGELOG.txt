@@ -6,6 +6,7 @@ Libraries x.x-x.x, xxxx-xx-xx
 
 Libraries 7.x-1.x, xxxx-xx-xx
 -----------------------------
+#496732 by tstoeckler, robphillips: Allow placing libraries in root directory.
 #743522 by sun: Ported to D7.
 
 
