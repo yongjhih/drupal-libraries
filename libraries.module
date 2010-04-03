@@ -112,3 +112,141 @@ function libraries_get_libraries() {
   return $directories;
 }
 
+/**
+ * Returns information about registered libraries.
+ *
+ * The returned information is unprocessed, i.e. as registered by modules.
+ *
+ * @param $library
+ *   (optional) The internal name of a library to return registered information
+ *   for, or FALSE if no library with the given name exists. If omitted,
+ *   information about all libraries is returned.
+ *
+ * @return
+ *   An associative array containing registered information for all libraries,
+ *   or the registered information for the library specified by $name.
+ *
+ * @see hook_libraries_info()
+ *
+ * @todo Re-introduce support for include file plugin system - either by copying
+ *   Wysiwyg's code, or directly switching to CTools.
+ */
+function libraries_info($library = NULL) {
+  $libraries = &drupal_static(__FUNCTION__);
+
+  if (!isset($libraries)) {
+    $libraries = array();
+    foreach (module_implements('libraries_info') as $module) {
+      foreach (module_invoke($module, 'libraries_info') as $name => $properties) {
+        $properties['module'] = $module;
+        $properties['name'] = $name;
+
+        $properties += array(
+          'title' => $name,
+          'vendor url' => '',
+          'download url' => '',
+          'path' => '',
+          'version callback' => 'libraries_get_version',
+          'version arguments' => array(),
+          'files' => array(),
+          'variants' => array(),
+          'versions' => array(),
+          'integration files' => array(),
+        );
+
+        $libraries[$name] = $properties;
+      }
+    }
+    // Allow modules to alter the registered libraries.
+    drupal_alter('libraries_info', $libraries);
+  }
+
+  if (isset($library)) {
+    return !empty($libraries[$library]) ? $libraries[$library] : FALSE;
+  }
+  return $libraries;
+}
+
+/**
+ * Detect libraries and library versions.
+ *
+ * @todo It makes little sense to pass $libraries by reference here. We need to
+ *   figure out whether, and if, how we want to retain the processed
+ *   information. I.e. either use a static cache here, or make libraries_info()
+ *   conditionally invoke libraries_detect($name). D7 only way: Re-use
+ *   drupal_static() of libraries_info() - but would still require to update the
+ *   (DB) cache (there likely will be one soon).
+ *   Also, we probably do not want to ALWAYS parse ALL possible libraries; rather,
+ *   the requesting/consuming module likely wants to know whether a list of
+ *   supported libraries (possibly those registered by itself, or in a certain
+ *   "category") is available... Food for thought.
+ *
+ * @param $libraries
+ *   An array of libraries to detect, as returned from libraries_info().
+ *
+ * @see libraries_info()
+ */
+function libraries_detect($libraries) {
+  foreach ($libraries as $name => $library) {
+    libraries_detect_library(&$libraries[$name]);
+  }
+  return $libraries;
+}
+
+/**
+ * Tries to detect a library and its installed version.
+ *
+ * @param $library
+ *   An associative array describing a single library, as returned from
+ *   libraries_info(), passed by reference.
+ */
+function libraries_detect_library(&$library) {
+  $library['installed'] = FALSE;
+  $name = $library['name'];
+
+  // Check whether the library exists.
+  if (!isset($library['library path'])) {
+    $library['library path'] = libraries_get_path($name);
+  }
+  if (!file_exists($library['library path'])) {
+    $library['error'] = t('%library could not be found.', array('%library' => $library['title']));
+    continue;
+  }
+
+  // Detect library version.
+  // Special handling for named arguments (single array).
+  if (!isset($library['version arguments'][0])) {
+    $library['version arguments'] = array($library['version arguments']);
+  }
+  $library['version'] = call_user_func_array($library['version callback'], $library['version arguments']);
+  if (empty($library['version'])) {
+    $library['error'] = t('The version of %library could not be detected.', array('%library' => $library['title']));
+    continue;
+  }
+
+  // Determine to which supported version the installed version maps.
+  if (!empty($library['versions'])) {
+    ksort($library['versions']);
+    $version = 0;
+    foreach ($library['versions'] as $supported_version => $version_properties) {
+      if (version_compare($library['installed version'], $supported_version, '>=')) {
+        $version = $supported_version;
+      }
+    }
+    if (!$version) {
+      $library['error'] = t('The installed version %version of %library is not supported.', array('%version' => $library['installed version'], '%library' => $library['title']));
+      continue;
+    }
+
+    // Apply version specific definitions and overrides.
+    $library = array_merge($library, $library['versions'][$version]);
+    unset($library['versions']);
+  }
+
+  // If we end up here, the library should be usable.
+  $library['installed'] = TRUE;
+  if (!empty($library['path'])) {
+    $library['library path'] .= '/' . $library['path'];
+  }
+}
+

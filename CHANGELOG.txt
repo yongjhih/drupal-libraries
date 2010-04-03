@@ -6,12 +6,13 @@ Libraries x.x-x.x, xxxx-xx-xx
 
 Libraries 7.x-1.x, xxxx-xx-xx
 -----------------------------
-#496732 by tstoeckler, robphillips: Allow placing libraries in root directory.
+#719896 by tstoeckler, sun: Added starting point for hook_libraries_info().
 #743522 by sun: Ported to D7.
 
 
 Libraries 6.x-1.x, xxxx-xx-xx
 -----------------------------
+#496732 by tstoeckler, robphillips: Allow placing libraries in root directory.
 #480440 by markus_petrux: Fixed base_path() not applied to default library path.
 #320562 by sun: Added basic functions.
 
