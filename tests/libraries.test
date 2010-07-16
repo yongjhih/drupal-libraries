@@ -6,3 +6,86 @@
  * Unit tests for Libraries API.
  */
 
+class LibrariesTestCase extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Libraries API functionality',
+      'description' => 'Tests detection and loading of libraries.',
+      'group' => 'Libraries API',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('libraries', 'libraries_test');
+  }
+
+  /**
+   * Tests libraries detection and loading.
+   *
+   * @todo Better method name(s); split into detection/loading/overloading/etc.
+   */
+  public function testLibraries() {
+    // Test missing library.
+    $library = libraries_info('example_missing');
+    libraries_detect_library($library);
+    $error = t('%library could not be found.', array(
+      '%library' => $library['title'],
+    ));
+    $this->assertEqual($library['error'], $error, 'Non-existing library not found.');
+
+    // Test unknown library version.
+    $library = libraries_info('example_undetected_version');
+    libraries_detect_library($library);
+    $error = t('The version of %library could not be detected.', array(
+      '%library' => $library['title'],
+    ));
+    $this->assertEqual($library['error'], $error, 'Library version not found.');
+
+    // Test unsupported library version.
+    $library = libraries_info('example_unsupported_version');
+    libraries_detect_library($library);
+    $error = t('The installed version %version of %library is not supported.', array(
+      '%version' => $library['version'],
+      '%library' => $library['title'],
+    ));
+    $this->assertEqual($library['error'], $error, 'Unsupported library version found.');
+
+    // Test libraries_get_version().
+    $library = libraries_info('example_installed');
+    libraries_detect_library($library);
+    $version = '2';
+    $this->assertEqual($library['version'], $version, 'Expected version returned by default version callback.');
+
+    // Test version-specific library files.
+    $files = array(
+      'js' => array('example_installed_2.js'),
+      'css' => array('example_installed_2.css'),
+      'php' => array('example_installed_2.php'),
+    );
+    $this->assertEqual($library['files'], $files, 'Version-specific library files found.');
+    // @todo Ensure that default files are not contained.
+
+    // Test library loading.
+    $this->drupalGet('libraries_test');
+
+    $this->assertRaw('example_installed_2.js', 'The JavaScript file is loaded.');
+    $this->assertRaw('example_installed_2.css', 'The CSS file is loaded.');
+    $this->assertText('example_installed_2.php', 'The PHP file is loaded.');
+    $this->assertRaw('libraries_test.js', 'The JavaScript integration file is loaded.');
+    $this->assertRaw('libraries_test.css', 'The CSS integration file is loaded.');
+    $this->assertText('libraries_test.inc', 'The PHP integration file is loaded.');
+
+    // Test variant loading.
+    // @todo Move onto libraries_test/variant (maintain namespace).
+    $this->drupalGet('libraries_test_variant');
+
+    $this->assertRaw('example_installed_variant.js', 'The JavaScript file is loaded.');
+    $this->assertRaw('example_installed_variant.css', 'The CSS file is loaded.');
+    $this->assertText('example_installed_variant.php', 'The PHP file is loaded.');
+    $this->assertRaw('libraries_test.js', 'The JavaScript integration file is loaded.');
+    $this->assertRaw('libraries_test.css', 'The CSS integration file is loaded.');
+    $this->assertText('libraries_test.inc', 'The PHP integration file is loaded.');
+  }
+}
+

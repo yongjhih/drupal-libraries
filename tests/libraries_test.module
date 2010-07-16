@@ -1,0 +1,200 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Tests the library detection and loading.
+ */
+
+/**
+ * Implements hook_libraries_info().
+ *
+ * Note: DO NOT use drupal_get_path() in your implementations! Used for testing
+ * purposes only.
+ */
+function libraries_test_libraries_info() {
+  // Test library detection.
+  $libraries['example_missing'] = array(
+    'library path' => drupal_get_path('module', 'libraries') . '/tests/missing',
+    'version callback' => 'libraries_test_get_version',
+    'version arguments' => array(
+      'version' => '1',
+    ),
+  );
+  $libraries['example_undetected_version'] = array(
+    'library path' => drupal_get_path('module', 'libraries') . '/tests',
+    'version callback' => 'libraries_test_get_version',
+    'version arguments' => array(
+      'version' => 'undetected',
+    ),
+  );
+  $libraries['example_unsupported_version'] = array(
+    'library path' => drupal_get_path('module', 'libraries') . '/tests',
+    'version callback' => 'libraries_test_get_version',
+    'version arguments' => array(
+      'version' => '1',
+    ),
+    'versions' => array(
+      '2' => array(),
+    ),
+  );
+
+  // Test version- and variant-overloading, default version callback and library
+  // loading.
+  $libraries['example_installed'] = array(
+    'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
+    'version arguments' => array(
+      'file' => 'example_installed.txt',
+      // Version 2
+      'pattern' => '/Version (\d+)/',
+      'lines' => 5,
+    ),
+    // @todo Version-less files, if library declares versions?
+    // @todo These files don't exist. On purpose?
+    'files' => array(
+      'js' => array(
+        'example_installed.js',
+      ),
+      'css' => array(
+        'example_installed.css',
+      ),
+      'php' => array(
+        'example_installed.php'
+      ),
+    ),
+  );
+
+  $libraries['example_installed']['versions'] = array(
+    // @todo Files for version 1 do not exist. On purpose?
+    '1' => array(
+      'files' => array(
+        'js' => array(
+          'example_installed_1.js',
+        ),
+        'css' => array(
+          'example_installed_1.css',
+        ),
+        'php' => array(
+          'example_installed_1.php',
+        ),
+      ),
+    ),
+    '2' => array(
+      'files' => array(
+        'js' => array(
+          'example_installed_2.js',
+        ),
+        'css' => array(
+          'example_installed_2.css',
+        ),
+        'php' => array(
+          'example_installed_2.php',
+        ),
+      ),
+    ),
+  );
+
+  // @todo Variant callback missing.
+  $libraries['example_installed']['variants'] = array(
+    // @todo Is "variant" the name of a variant?
+    'variant' => array(
+      'files' => array(
+        'js' => array(
+          'example_installed_variant.js',
+        ),
+        'css' => array(
+          'example_installed_variant.css',
+        ),
+        'php' => array(
+          'example_installed_variant.php',
+        ),
+      ),
+    ),
+  );
+
+  // Integration files for example_installed library.
+  // Normally added by the corresponding module via hook_libraries_info_alter(),
+  // these files should be automatically loaded when the library is loaded.
+  $libraries['example_installed']['integration files'] = array(
+    'libraries_test' => array(
+      'js' => array(
+        'libraries_test.js',
+      ),
+      'css' => array(
+        'libraries_test.css',
+      ),
+      'php' => array(
+        'libraries_test.inc',
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * Gets the version of an example library.
+ *
+ * Returns exactly the version string entered as the $version parameter, unless
+ * you specify 'undetected', in which case it returns nothing.
+ *
+ * @todo Shouldn't this get some info/arguments passed by Libraries API? (?)
+ */
+function libraries_test_get_version($version) {
+  if ($version !== 'undetected') {
+    return $version;
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function libraries_test_menu() {
+  $items['libraries_test'] = array(
+    'title' => 'Libraries loading test',
+    'page callback' => 'libraries_test_load',
+    'access callback' => TRUE,
+  );
+  $items['libraries_test_variant'] = array(
+    'title' => 'Libraries variant loading test',
+    'page callback' => 'libraries_test_load_variant',
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+
+/**
+ * Loads the test library.
+ */
+function libraries_test_load() {
+  libraries_load('example_installed');
+  // JavaScript and CSS files can be checked directly by SimpleTest, so we only
+  // need to manually check for PHP files.
+  $output = '';
+  if (function_exists('example_installed_2')) {
+    $output .= 'example_installed_2.php';
+  }
+  // Check for the PHP integration file.
+  if (function_exists('libraries_test_1')) {
+    $output .= 'libraries_test.inc';
+  }
+  return $output;
+}
+
+/**
+ * Loads the test variant of the test library.
+ */
+function libraries_test_load_variant() {
+  libraries_load('example_installed', 'variant');
+  // JavaScript and CSS files can be checked directly by SimpleTest, so we only
+  // need to manually check for PHP files.
+  $output = '';
+  if (function_exists('example_installed_variant')) {
+    $output .= 'example_installed_variant.php';
+  }
+  // Check for the PHP integration file.
+  if (function_exists('libraries_test_1')) {
+    $output .= 'libraries_test.inc';
+  }
+  return $output;
+}

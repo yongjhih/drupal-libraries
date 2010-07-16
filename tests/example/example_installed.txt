@@ -1,0 +1,6 @@
+; $Id$
+
+Example library
+
+Version 2
+
