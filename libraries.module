@@ -187,8 +187,8 @@ function libraries_info($library = NULL) {
  * @see libraries_info()
  */
 function libraries_detect($libraries) {
-  foreach ($libraries as $name => $library) {
-    libraries_detect_library(&$libraries[$name]);
+  foreach ($libraries as &$library) {
+    libraries_detect_library($library);
   }
   return $libraries;
 }
