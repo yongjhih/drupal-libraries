@@ -22,20 +22,26 @@
  *     the actual library files in a sub-directory.
  *   - version callback: (optional) The name of a function that detects and
  *     returns the full version string of the library. Defaults to
- *     libraries_get_version().
+ *     libraries_get_version(). The first argument is always $library, an array
+ *     containing all library information as described here. The following
+ *     argument(s) can either be:
+ *     - options: An associative array of additional information to pass to the
+ *       version callback. In this case the version arguments (see below) must
+ *       be declared as an associative array.
+ *     - or any number of independent arguments. In this case the version
+ *       arguments (see below) must be declared as an indexed array.
  *   - version arguments: A list of arguments to pass to the version callback.
  *     The default version callback libraries_get_version() expects a single,
- *     single, associative array with named keys:
+ *     associative array with named keys:
  *     - file: The filename to parse for the version, relative to the library
  *       path. For example: 'docs/changelog.txt'.
  *     - pattern: A string containing a regular expression (PCRE) to match the
  *       library version. For example: '/@version (\d+)\.(\d+)/'.
- *     - lines: The maximum number of lines to search the pattern in. For
- *       example: 20.
+ *     - lines: (optional) The maximum number of lines to search the pattern in.
+ *       Defaults to 20.
  *     - cols: (optional) The maximum number of characters per line to take into
- *       account. For example: 40. Defaults to unlimited. To be used if the file
- *       containing the library version is minified/compressed, i.e. reading a
- *       single line would read the entire library into memory.
+ *       account. Defaults to 200. In case of minified or compressed files, this
+ *       prevents reading the entire file into memory.
  *   - files: An associative array of library files to load. Supported keys are:
  *     - js: A list of JavaScript files to load, using the same syntax as Drupal
  *       core's hook_library().
@@ -48,7 +54,22 @@
  *     uncompressed/source variant, those can be defined here. Each key should
  *     describe the variant type, e.g. 'minified' or 'source'. Each value is an
  *     associative array of top-level properties that are entirely overridden by
- *     the variant, most often just 'files'. Variants can be version specific.
+ *     the variant, most often just 'files'. Additionally, each variant can
+ *     contain following properties:
+ *     - variant callback: (optional) The name of a function that detects
+ *       returns TRUE or FALSE, depending on whether the variant is available or
+ *       not. The first argument is always $library, an array containing all
+ *       library information as described here. The seconds argument is always
+ *       $name, a string containing the name of the variant. The following 
+ *       argument(s) can either be:
+ *       - options: An associative array of additional information to pass to
+ *         the version callback. In this case the version arguments (see below)
+ *         must be declared as an associative array.
+ *       - or any number of independent arguments. In this case the version
+ *         arguments (see below) must be declared as an indexed array.
+ *       If ommitted, the variant is expected to always be available. Variants
+ *       can be version specific.
+ *     - variant arguments: A list of arguments to pass to the variant callback.
  *   - versions: (optional) An associative array of supported library versions.
  *     Naturally, external libraries evolve over time and so do their APIs. In
  *     case a library changes between versions, different 'files' may need to be
@@ -62,6 +83,8 @@
  *     the same notion as the top-level 'files' property. Each specified file
  *     should contain the full path to the file.
  *   Additional top-level properties can be registered as needed.
+ *
+ * @see hook_library()
  */
 function hook_libraries_info() {
   // The following is a full explanation of all properties. See below for more
@@ -121,6 +144,10 @@ function hook_libraries_info() {
             'lib_style.css',
             'skin/example.css',
           ),
+        ),
+        'variant callback' => 'mymodule_check_variant',
+        'variant arguments' => array(
+          'variant' => 'minified',
         ),
       ),
     ),
@@ -203,9 +230,9 @@ function hook_libraries_info() {
     'download url' => 'http://tinymce.moxiecode.com/download.php',
     'path' => 'jscripts/tiny_mce',
     'version arguments' => array(
-      // It can be easier to parse the first chars of a minified file instead of
-      // doing a multi-line pattern matching in a source file. See 'lines' and
-      // 'cols' below.
+      // It can be easier to parse the first characters of a minified file
+      // instead of doing a multi-line pattern matching in a source file. See
+      // 'lines' and 'cols' below.
       'file' => 'jscripts/tiny_mce/tiny_mce.js',
       // Best practice: Document the actual version strings for later reference.
       // 2.x: this.majorVersion="2";this.minorVersion="1.3"
@@ -277,4 +304,21 @@ function hook_libraries_info() {
     ),
   );
   return $libraries;
+}
+
+/**
+ * Alter the library information before detection and caching takes place.
+ *
+ * The library definitions are passed by reference. A common use-case is adding
+ * a module's integration files to the library array, so that the files are
+ * loaded whenever the library is. As noted above, it is important to declare
+ * integration files inside of an array, whose key is the module name.
+ *
+ * @see hook_libraries_info()
+ */
+function hook_libraries_info_alter(&$libraries) {
+  $files = array(
+    'php' => array('example_module.php_spellchecker.inc'),
+  );
+  $libraries['php_spellchecker']['integration files']['example_module'] = $files;
 }

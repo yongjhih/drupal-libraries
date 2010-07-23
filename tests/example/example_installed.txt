@@ -4,3 +4,4 @@ Example library
 
 Version 2
 
+This file is an example file to test version detection.

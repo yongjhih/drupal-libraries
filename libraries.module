@@ -210,18 +210,22 @@ function libraries_detect_library(&$library) {
   }
   if (!file_exists($library['library path'])) {
     $library['error'] = t('%library could not be found.', array('%library' => $library['title']));
-    continue;
+    return;
   }
 
   // Detect library version.
-  // Special handling for named arguments (single array).
-  if (!isset($library['version arguments'][0])) {
-    $library['version arguments'] = array($library['version arguments']);
+  // We support both a single parameter, which is an associative array, and an
+  // indexed array of multiple parameters.
+  if (isset($library['version arguments'][0])) {
+    // Add the library as the first argument.
+    $library['version'] = call_user_func_array($library['version callback'], array_merge(array($library), $library['version arguments']));
   }
-  $library['version'] = call_user_func_array($library['version callback'], $library['version arguments']);
+  else {
+    $library['version'] = $library['version callback']($library, $library['version arguments']);
+  }
   if (empty($library['version'])) {
     $library['error'] = t('The version of %library could not be detected.', array('%library' => $library['title']));
-    continue;
+    return;
   }
 
   // Determine to which supported version the installed version maps.
@@ -229,13 +233,16 @@ function libraries_detect_library(&$library) {
     ksort($library['versions']);
     $version = 0;
     foreach ($library['versions'] as $supported_version => $version_properties) {
-      if (version_compare($library['installed version'], $supported_version, '>=')) {
+      if (version_compare($library['version'], $supported_version, '>=')) {
         $version = $supported_version;
       }
     }
     if (!$version) {
-      $library['error'] = t('The installed version %version of %library is not supported.', array('%version' => $library['installed version'], '%library' => $library['title']));
-      continue;
+      $library['error'] = t('The installed version %version of %library is not supported.', array(
+        '%version' => $library['version'],
+        '%library' => $library['title'],
+      ));
+      return;
     }
 
     // Apply version specific definitions and overrides.
@@ -243,10 +250,161 @@ function libraries_detect_library(&$library) {
     unset($library['versions']);
   }
 
+  // Check each variant if it is installed.
+  if (!empty($library['variants'])) {
+    foreach ($library['variants'] as $name => &$variant) {
+      // If no variant callback has been set, assume the variant to be
+      // installed.
+      $variant['installed'] = TRUE;
+      if (!empty($variant['variant callback'])) {
+        // We support both a single parameter, which is an associative array,
+        // and an indexed array of multiple parameters.
+        if (isset($variant['variant arguments'][0])) {
+          // Add the library as the first argument, and the variant name as the second.
+          $variant['installed'] = call_user_func_array($variant['variant callback'], array_merge(array($library, $name), $variant['variant arguments']));
+        }
+        else {
+          $variant['installed'] = $variant['variant callback']($library, $name, $variant['variant arguments']);
+        }
+        if (empty($variant['installed'])) {
+          $variant['error'] = t('The %variant variant of %library could not be found.', array(
+            '%variant' => $name,
+            '%library' => $library['title'],
+          ));
+        }
+      }
+    }
+  }
+
   // If we end up here, the library should be usable.
   $library['installed'] = TRUE;
-  if (!empty($library['path'])) {
-    $library['library path'] .= '/' . $library['path'];
+}
+
+/**
+ * Loads a library.
+ *
+ * @param $library
+ *   The name of the library to load.
+ * @param $variant
+ *   The name of the variant to load.
+ */
+function libraries_load($library, $variant = NULL) {
+  $library = libraries_info($library);
+  libraries_detect_library($library);
+  libraries_load_files($library, $variant);
+}
+
+/**
+ * Loads a library's files.
+ *
+ * @param $library
+ *   The name of the library to load.
+ * @param $variant
+ *   The name of the variant to load.
+ */
+function libraries_load_files($library, $variant = NULL) {
+  // Construct the full path to the library for later use.
+  $path = !empty($library['path']) ? $library['library path'] . '/' . $library['path'] : $library['library path'];
+
+  // If a variant was specified, override the top-level properties with the
+  // variant properties.
+  if (!empty($variant) && !empty($library['variants'][$variant]['installed'])) {
+    $library = array_merge($library, $library['variants'][$variant]);
   }
+
+  // Load integration files.
+  if (!empty($library['integration files'])) {
+    foreach ($library['integration files'] as $module => $files) {
+      libraries_load_files(array(
+        'files' => $files,
+        'library path' => drupal_get_path('module', $module),
+      ));
+    }
+  }
+
+  // Load both the JavaScript and the CSS files.
+  // The parameters for drupal_add_js() and drupal_add_css() require special
+  // handling.
+  // @see drupal_process_attached()
+  foreach (array('js', 'css') as $type) {
+    if (!empty($library['files'][$type])) {
+      foreach ($library['files'][$type] as $data => $options) {
+        // If the value is not an array, it's a filename and passed as first
+        // (and only) argument.
+        if (!is_array($options)) {
+          // Prepend the library path to the file name.
+          $data = "$path/$options";
+          $options = NULL;
+        }
+        // In some cases, the first parameter ($data) is an array. Arrays can't be
+        // passed as keys in PHP, so we have to get $data from the value array.
+        if (is_numeric($data)) {
+          $data = $options['data'];
+          unset($options['data']);
+        }
+        // Apply the default weight if the weight isn't explicitly given.
+        if (!isset($options['weight'])) {
+          $options['weight'] = ($type == 'js') ? JS_DEFAULT : CSS_DEFAULT;
+        }
+        call_user_func('drupal_add_' . $type, $data, $options);
+      }
+    }
+  }
+
+  // Load PHP files.
+  if (!empty($library['files']['php'])) {
+    foreach ($library['files']['php'] as $file) {
+      $file_path = DRUPAL_ROOT . '/' . $path . '/' . $file;
+      if (file_exists($file_path)) {
+        require_once $file_path;
+      }
+    }
+  }
+}
+
+/**
+ * Gets the version information from an arbitrary library.
+ *
+ * @param $library
+ *   An associative array containing all information about the library.
+ * @param $options
+ *   An associative array containing with the following keys:
+ *   - file: The filename to parse for the version, relative to the library
+ *     path. For example: 'docs/changelog.txt'.
+ *   - pattern: A string containing a regular expression (PCRE) to match the
+ *     library version. For example: '/@version (\d+)\.(\d+)/'.
+ *   - lines: (optional) The maximum number of lines to search the pattern in.
+ *     Defaults to 20.
+ *   - cols: (optional) The maximum number of characters per line to take into
+ *     account. Defaults to 200. In case of minified or compressed files, this
+ *     prevents reading the entire file into memory.
+ *
+ * @return
+ *   A string containing the version of the library.
+ *
+ * @see libraries_get_path()
+ */
+function libraries_get_version($library, $options) {
+  // Provide defaults.
+  $options += array(
+    'file' => '',
+    'pattern' => '',
+    'lines' => 20,
+    'cols' => 200,
+  );
+
+  $file = DRUPAL_ROOT . '/' . $library['library path'] . '/' . $options['file'];
+  if (empty($options['file']) || !file_exists($file)) {
+    return;
+  }
+  $file = fopen($file, 'r');
+  while ($options['lines'] && $line = fgets($file, $options['cols'])) {
+    if (preg_match($options['pattern'], $line, $version)) {
+      fclose($file);
+      return $version[1];
+    }
+    $options['lines']--;
+  }
+  fclose($file);
 }
 

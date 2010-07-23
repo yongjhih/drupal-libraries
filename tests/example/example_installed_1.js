@@ -8,11 +8,11 @@
  * JavaScript below can be useful for debugging with SimpleTest's verbose mode.
  */
 
-(function ($) {
+(function ($) { 
 
 Drupal.behaviors.librariesTest = {
   attach: function(context, settings) {
-    $('h1#page-title').after('<div id="libraries-test">If this text shows up, the JavaScript file was loaded successfully. If this text is purple, the CSS file was loaded successfully.</div>')
+    $('h1#page-title').after('<div id="libraries-test">If this text shows up, the JavaScript file was loaded successfully. If this text is red, the CSS file was loaded successfully.</div>')
   }
 };
 
