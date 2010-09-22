@@ -1,0 +1,13 @@
+/* $Id$ */
+
+/**
+ * @file
+ * Test CSS file for Libraries loading.
+ *
+ * Color the 'libraries-test' div green. See example_installed.txt for more
+ * information.
+ */
+
+div#libraries-test {
+  color: green;
+}
