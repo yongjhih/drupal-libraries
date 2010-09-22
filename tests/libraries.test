@@ -72,9 +72,9 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $library = libraries_info('example_simple');
     libraries_detect_library($library);
     $files = array(
-      'js' => array('example_installed_1.js'),
-      'css' => array('example_installed_1.css'),
-      'php' => array('example_installed_1.php'),
+      'js' => array('example_1.js'),
+      'css' => array('example_1.css'),
+      'php' => array('example_1.php'),
     );
     $this->assertEqual($library['files'], $files, 'Top-level files property works.');
 
@@ -82,9 +82,9 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $library = libraries_info('example_versions');
     libraries_detect_library($library);
     $files = array(
-      'js' => array('example_installed_2.js'),
-      'css' => array('example_installed_2.css'),
-      'php' => array('example_installed_2.php'),
+      'js' => array('example_2.js'),
+      'css' => array('example_2.css'),
+      'php' => array('example_2.php'),
     );
     $this->assertEqual($library['files'], $files, 'Version-specific library files found.');
 
@@ -96,18 +96,16 @@ class LibrariesTestCase extends DrupalWebTestCase {
       '%variant' => $variants[0],
       '%library' => $library['title'],
     ));
-    $this->assertEqual($library['variants']['example_variant_1']['error'], $error, 'Missing variant not found.');
+    $this->assertEqual($library['variants']['example_variant']['error'], $error, 'Missing variant not found.');
 
     // Test existing variant.
     $library = libraries_info('example_variant');
     libraries_detect_library($library);
-    $this->assertEqual($library['variants']['example_variant_1']['installed'], TRUE, 'Existing variant found.');
+    $this->assertEqual($library['variants']['example_variant']['installed'], TRUE, 'Existing variant found.');
 
     // Test loading of a simple library with a top-level files property.
     $this->drupalGet('libraries_test/simple');
-    $this->assertRaw('example_installed_1.js', 'A JavaScript file is loaded correctly.');
-    $this->assertRaw('example_installed_1.css', 'A CSS file is loaded correctly.');
-    $this->assertText('example_installed_1.php', 'A PHP file is loaded correctly.');
+    $this->assertLibraryFiles('example_1');
 
     // Test loading of integration files.
     $this->drupalGet('libraries_test/integration_files');
@@ -117,37 +115,47 @@ class LibrariesTestCase extends DrupalWebTestCase {
 
     // Test version overloading.
     $this->drupalGet('libraries_test/versions');
-    $this->assertNoRaw('example_installed_1.js', 'The JavaScript file of the wrong library version is not loaded.');
-    $this->assertNoRaw('example_installed_1.css', 'The CSS file of the wrong library version is not loaded.');
-    $this->assertNoText('example_installed_1.php', 'The PHP file of the wrong library version is not loaded.');
-    $this->assertRaw('example_installed_2.js', 'The JavaScript file of the correct library version is loaded.');
-    $this->assertRaw('example_installed_2.css', 'The CSS file of the correct library version is loaded.');
-    $this->assertText('example_installed_2.php', 'The PHP file of the correct library version is loaded.');
+    $this->assertLibraryFiles('example_2');
 
     // Test variant loading.
     $this->drupalGet('libraries_test/variant');
-    $this->assertNoRaw('example_installed_variant_2.js', 'The JavaScript file of the wrong library variant is not loaded.');
-    $this->assertNoRaw('example_installed_variant_2.css', 'The CSS file of the wrong library variant is not loaded.');
-    $this->assertNoText('example_installed_variant_2.php', 'The PHP file of the wrong library variant is not loaded.');
-    $this->assertRaw('example_installed_variant_1.js', 'The JavaScript file of the correct library variant is loaded.');
-    $this->assertRaw('example_installed_variant_1.css', 'The CSS file of the correct library variant is loaded.');
-    $this->assertText('example_installed_variant_1.php', 'The PHP file of the correct library variant is loaded.');
+    $this->assertLibraryFiles('example_3');
 
     // Test version overloading and variant loading.
     $this->drupalGet('libraries_test/versions_and_variants');
-    $this->assertNoRaw('example_installed_1.js', 'The JavaScript file of the wrong library version and variant is not loaded.');
-    $this->assertNoRaw('example_installed_1.css', 'The CSS file of the wrong library version and variant is not loaded.');
-    $this->assertNoText('example_installed_1.php', 'The PHP file of the wrong library version and variant is not loaded.');
-    $this->assertNoRaw('example_installed_2.js', 'The JavaScript file of the wrong library version and variant is not loaded.');
-    $this->assertNoRaw('example_installed_2.css', 'The CSS file of the wrong library version and variant is not loaded.');
-    $this->assertNoText('example_installed_2.php', 'The PHP file of the wrong library version and variant is not loaded.');
-    $this->assertNoRaw('example_installed_variant_1.js', 'The JavaScript file of the wrong library version and variant is not loaded.');
-    $this->assertNoRaw('example_installed_variant_1.css', 'The CSS file of the wrong library version and variant is not loaded.');
-    $this->assertNoText('example_installed_variant_1.php', 'The PHP file of the wrong library version and variant is not loaded.');
-    $this->assertRaw('example_installed_variant_2.js', 'The JavaScript file of the correct library version and variant is loaded.');
-    $this->assertRaw('example_installed_variant_2.css', 'The CSS file of the correct library version and variant is loaded.');
-    $this->assertText('example_installed_variant_2.php', 'The PHP file of the correct library version and variant is loaded.');
-
+    $this->assertLibraryFiles('example_4');
   }
+
+  /**
+   * Helper function to assert that a library was correctly loaded.
+   *
+   * Asserts that all the correct files were loaded and all the incorrect ones
+   * were not.
+   *
+   * @param $name
+   *   The name of the files that should be loaded. The current testing system
+   *   knows of 'example_1', 'example_2', 'example_3' and 'example_4'. Each name
+   *   has an associated JavaScript, CSS and PHP file that will be asserted. All
+   *   other files will be asserted to not be loaded. See
+   *   tests/example/README.txt for more information on how the loading of the
+   *   files is tested.
+   */
+  private function assertLibraryFiles($name) {
+    $names = drupal_map_assoc(array('example_1', 'example_2', 'example_3', 'example_4'));
+    unset($names[$name]);
+
+    // Test that the wrong files are not loaded.
+    foreach ($names as $filename) {
+      $this->assertNoRaw("$filename.js", 'A wrong JavaScript file is not loaded.');
+      $this->assertNoRaw("$filename.css", 'A wrong CSS file is not loaded.');
+      $this->assertNoText("$filename.php", 'A wrong PHP file is not loaded.');
+    }
+
+    // Test that the correct files are loaded.
+    $this->assertRaw("$name.js", 'The correct JavaScript file is loaded.');
+    $this->assertRaw("$name.css", 'The correct CSS file is loaded.');
+    $this->assertText("$name.php", 'The correct PHP file is loaded.');
+  }
+
 }
 

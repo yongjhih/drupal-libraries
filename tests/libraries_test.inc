@@ -8,5 +8,5 @@
 /**
  * Dummy function to see if this file was loaded.
  */
-function libraries_test_1() {
+function _libraries_test_integration_file() {
 }

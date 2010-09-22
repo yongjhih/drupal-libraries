@@ -16,4 +16,4 @@ Drupal.behaviors.librariesTest = {
   }
 };
 
-})(jQuery); 
+})(jQuery);
