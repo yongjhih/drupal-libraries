@@ -330,3 +330,26 @@ function hook_libraries_info_alter(&$libraries) {
   );
   $libraries['php_spellchecker']['integration files']['example_module'] = $files;
 }
+
+/**
+ * Specify paths to look for library info files.
+ *
+ * Libraries API looks in the following directories for library info files by
+ * default:
+ * - libraries
+ * - profiles/$profile/libraries
+ * - sites/all/libraries
+ * - sites/$site/libraries
+ * This hook allows you to specify additional locations to look for library info
+ * files. This should only be used for modules that declare many libraries.
+ * Modules that only implement a few libraries should implement
+ * hook_libraries_info().
+ *
+ * @return
+ *   An array of paths.
+ */
+function hook_libraries_paths() {
+  // Taken from the Libraries test module, which needs to specify the path to
+  // the test library.
+  return array(drupal_get_path('module', 'libraries_test') . '/example');
+}

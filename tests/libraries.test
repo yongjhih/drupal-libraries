@@ -26,6 +26,22 @@ class LibrariesTestCase extends DrupalWebTestCase {
    * @todo Better method name(s); split into detection/loading/overloading/etc.
    */
   public function testLibraries() {
+    // Test a library specified with an .info file gets detected.
+    $library = libraries_info('example');
+    $expected = array(
+      'title' => 'example',
+      'vendor url' => '',
+      'download url' => '',
+      'path' => '',
+      'version callback' => 'libraries_get_version',
+      'version arguments' => array(),
+      'files' => array(),
+      'variants' => array(),
+      'versions' => array(),
+      'integration files' => array(),
+    );
+    $this->assertEqual($library, $expected, 'Library specified with an .info file found');
+
     // Test missing library.
     $library = libraries_info('example_missing');
     libraries_detect_library($library);

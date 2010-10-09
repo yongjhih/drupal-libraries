@@ -288,6 +288,13 @@ function libraries_test_libraries_info() {
 }
 
 /**
+ * Implements hook_libraries_info_file_paths()
+ */
+function libraries_test_libraries_info_file_paths() {
+  return array(drupal_get_path('module', 'libraries_test') . '/example');
+}
+
+/**
  * Gets the version of an example library.
  *
  * Returns exactly the version string entered as the $version parameter. This

@@ -113,6 +113,49 @@ function libraries_get_libraries() {
 }
 
 /**
+ * Looks for library info files.
+ *
+ * This function scans the following directories for info files:
+ * - libraries
+ * - profiles/$profilename/libraries
+ * - sites/all/libraries
+ * - sites/$sitename/libraries
+ * - any directories specified via hook_libraries_info_file_paths()
+ *
+ * @return
+ *   An array of info files, keyed by library name. The values are the paths of
+ *   the files.
+ */
+function libraries_info_files() {
+  global $profile;
+  if (!isset($profile)) {
+    $profile = variable_get('install_profile', 'default');
+  }
+  $config = conf_path();
+
+  // Build a list of directories.
+  $directories = module_invoke_all('libraries_info_file_paths');
+  $directories[] = 'libraries';
+  $directories[] = "libraries/$profile/libraries";
+  $directories[] = 'sites/all/libraries';
+  $directories[] = "sites/$config/libraries";
+
+  // Scan for info files.
+  $files = array();
+  foreach ($directories as $dir) {
+    $files += file_scan_directory($dir, '/[a-z[a-z0-9_]+.info/', array(
+      'key' => 'name',
+      'recurse' => FALSE,
+    ));
+  }
+
+  foreach ($files as &$file) {
+    $file = $file->uri;
+  }
+
+  return $files;
+}
+/**
  * Returns information about registered libraries.
  *
  * The returned information is unprocessed, i.e. as registered by modules.
@@ -140,23 +183,31 @@ function libraries_info($library = NULL) {
       foreach (module_invoke($module, 'libraries_info') as $name => $properties) {
         $properties['module'] = $module;
         $properties['name'] = $name;
-
-        $properties += array(
-          'title' => $name,
-          'vendor url' => '',
-          'download url' => '',
-          'path' => '',
-          'version callback' => 'libraries_get_version',
-          'version arguments' => array(),
-          'files' => array(),
-          'variants' => array(),
-          'versions' => array(),
-          'integration files' => array(),
-        );
-
         $libraries[$name] = $properties;
       }
     }
+    // Gather information from .info files.
+    foreach (libraries_info_files() as $name => $path) {
+      $file = "$path/$name.info";
+      $libraries[$name] = drupal_parse_info_file($file);
+    }
+
+    // Provide defaults.
+    foreach ($libraries as $name => &$properties) {
+      $properties += array(
+        'title' => $name,
+        'vendor url' => '',
+        'download url' => '',
+        'path' => '',
+        'version callback' => 'libraries_get_version',
+        'version arguments' => array(),
+        'files' => array(),
+        'variants' => array(),
+        'versions' => array(),
+        'integration files' => array(),
+      );
+    }
+
     // Allow modules to alter the registered libraries.
     drupal_alter('libraries_info', $libraries);
   }
