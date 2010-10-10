@@ -48,7 +48,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $error = t('%library could not be found.', array(
       '%library' => $library['title'],
     ));
-    $this->assertEqual($library['error'], $error, 'Non-existing library not found.');
+    $this->assertEqual($library['error message'], $error, 'Non-existing library not found.');
 
     // Test unknown library version.
     $library = libraries_info('example_undetected_version');
@@ -56,7 +56,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $error = t('The version of %library could not be detected.', array(
       '%library' => $library['title'],
     ));
-    $this->assertEqual($library['error'], $error, 'Library version not found.');
+    $this->assertEqual($library['error message'], $error, 'Library version not found.');
 
     // Test unsupported library version.
     $library = libraries_info('example_unsupported_version');
@@ -65,7 +65,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
       '%version' => $library['version'],
       '%library' => $library['title'],
     ));
-    $this->assertEqual($library['error'], $error, 'Unsupported library version found.');
+    $this->assertEqual($library['error message'], $error, 'Unsupported library version found.');
 
     // Test supported library version.
     $library = libraries_info('example_supported_version');
@@ -112,7 +112,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
       '%variant' => $variants[0],
       '%library' => $library['title'],
     ));
-    $this->assertEqual($library['variants']['example_variant']['error'], $error, 'Missing variant not found.');
+    $this->assertEqual($library['variants']['example_variant']['error message'], $error, 'Missing variant not found.');
 
     // Test existing variant.
     $library = libraries_info('example_variant');
