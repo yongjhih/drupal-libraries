@@ -10,18 +10,18 @@
  * Implements hook_drush_command().
  */
 function libraries_drush_command() {
-  return;
   $items['libraries-list'] = array(
     'callback' => 'libraries_drush_list',
     'description' => dt('Lists registered library information.'),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
   );
-  $items['libraries-download'] = array(
+  /**$items['libraries-download'] = array(
     'callback' => 'libraries_drush_download',
     'description' => dt('Downloads a registered library into the libraries directory for the active site.'),
     'arguments' => array(
       'name' => dt('The internal name of the registered library.'),
     ),
-  );
+  );*/
   return $items;
 }
 
@@ -37,6 +37,54 @@ function libraries_drush_help($section) {
       return dt('Downloads a registered library into the libraries directory for the active site.
 
 See libraries-list for a list of registered libraries.');
+  }
+}
+
+/**
+ * Lists registered library information.
+ */
+function libraries_drush_list() {
+  $libraries = libraries_detect(libraries_info());
+  ksort($libraries);
+
+  if (empty($libraries)) {
+    drush_print('There are no registered libraries.');
+  }
+
+  else {
+    $header = array('Name', 'Status', 'Version', 'Variants');
+    $rows = array();
+    foreach ($libraries as $library_name => $library) {
+      $version = $library['version'];
+      if ($library['installed']) {
+        $status = 'OK';
+      }
+      else {
+        $status = drupal_ucfirst($library['error']);
+        $version = (empty($library['version']) ? '-' : $library['version']);
+      }
+      if (empty($library['variants'])) {
+        $variants = '-';
+      }
+      else {
+        $variants = array();
+        foreach ($library['variants'] as $variant_name => $variant) {
+          if ($variant['installed']) {
+            $variants[] = $variant_name;
+          }
+        }
+        if (empty($variants)) {
+          $variants = '-';
+        }
+        else {
+          $variants = implode(', ', $variants);
+        }
+      }
+
+      $rows[] = array($library_name, $status, $version, $variants);
+    }
+    $table = new Console_Table();
+    drush_print($table->fromArray($header, $rows));
   }
 }
 

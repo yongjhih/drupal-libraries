@@ -260,7 +260,8 @@ function libraries_detect_library(&$library) {
     $library['library path'] = libraries_get_path($name);
   }
   if (!file_exists($library['library path'])) {
-    $library['error'] = t('%library could not be found.', array('%library' => $library['title']));
+    $library['error'] = 'not found';
+    $library['error message'] = t('%library could not be found.', array('%library' => $library['title']));
     return;
   }
 
@@ -275,7 +276,8 @@ function libraries_detect_library(&$library) {
     $library['version'] = $library['version callback']($library, $library['version arguments']);
   }
   if (empty($library['version'])) {
-    $library['error'] = t('The version of %library could not be detected.', array('%library' => $library['title']));
+    $library['error'] = 'not detected';
+    $library['error message'] = t('The version of %library could not be detected.', array('%library' => $library['title']));
     return;
   }
 
@@ -289,7 +291,8 @@ function libraries_detect_library(&$library) {
       }
     }
     if (!$version) {
-      $library['error'] = t('The installed version %version of %library is not supported.', array(
+      $library['error'] = 'not supported';
+      $library['error message'] = t('The installed version %version of %library is not supported.', array(
         '%version' => $library['version'],
         '%library' => $library['title'],
       ));
@@ -318,7 +321,8 @@ function libraries_detect_library(&$library) {
           $variant['installed'] = $variant['variant callback']($library, $name, $variant['variant arguments']);
         }
         if (empty($variant['installed'])) {
-          $variant['error'] = t('The %variant variant of %library could not be found.', array(
+          $variant['error'] = 'not found';
+          $variant['error message'] = t('The %variant variant of %library could not be found.', array(
             '%variant' => $name,
             '%library' => $library['title'],
           ));

@@ -6,6 +6,7 @@ Libraries x.x-x.x, xxxx-xx-xx
 
 Libraries 7.x-1.x, xxxx-xx-xx
 -----------------------------
+#542940 by tstoeckler, sun: Add libraries-list command.
 #919632 by tstoeckler: Add example library info file for testing purposes.
 #719896 by tstoeckler, sun: Documentation clean-up and tests improvement.
 #542940 by sun: Added initial Drush integration file.

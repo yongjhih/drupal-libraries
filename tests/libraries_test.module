@@ -188,21 +188,6 @@ function libraries_test_libraries_info() {
         'variant callback' => '_libraries_test_return_installed',
         'variant arguments' => array(TRUE),
       ),
-      'example_variant_2' => array(
-        'files' => array(
-          'js' => array(
-            'example_4.js',
-          ),
-          'css' => array(
-            'example_4.css',
-          ),
-          'php' => array(
-            'example_4.php',
-          ),
-        ),
-        'variant callback' => '_libraries_test_return_installed',
-        'variant arguments' => array(TRUE),
-      ),
     ),
   );
 
