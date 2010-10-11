@@ -1,0 +1,6 @@
+<?php
+// $Id$
+
+// Testbot gets confused and breaks when encountering an .info file without
+// .module file. Until the testbot is corrected, we need to resolve this by
+// supplying a fake .module file for the example.info library.

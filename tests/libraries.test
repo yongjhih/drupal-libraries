@@ -3,20 +3,24 @@
 
 /**
  * @file
- * Unit tests for Libraries API.
+ * Tests for Libraries API.
  */
 
+/**
+ * Tests basic detection and loading of libraries.
+ */
 class LibrariesTestCase extends DrupalWebTestCase {
+  protected $profile = 'testing';
 
   public static function getInfo() {
     return array(
-      'name' => 'Libraries API functionality',
+      'name' => 'Libraries detection and loading',
       'description' => 'Tests detection and loading of libraries.',
       'group' => 'Libraries API',
     );
   }
 
-  public function setUp() {
+  function setUp() {
     parent::setUp('libraries', 'libraries_test');
   }
 
@@ -25,7 +29,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
    *
    * @todo Better method name(s); split into detection/loading/overloading/etc.
    */
-  public function testLibraries() {
+  function testLibraries() {
     // Test a library specified with an .info file gets detected.
     $library = libraries_info('example');
     $expected = array(
@@ -156,7 +160,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
    *   tests/example/README.txt for more information on how the loading of the
    *   files is tested.
    */
-  private function assertLibraryFiles($name) {
+  function assertLibraryFiles($name) {
     $names = drupal_map_assoc(array('example_1', 'example_2', 'example_3', 'example_4'));
     unset($names[$name]);
 
