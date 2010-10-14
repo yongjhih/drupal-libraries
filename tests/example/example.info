@@ -5,3 +5,8 @@
 ; if Libraries API detects a library named 'example', we know that this file was
 ; properly detected.
 
+; Because the packager on Drupal.org automatically pads this file with project
+; information (because it thinks it is a module), we need to hide it from the
+; modules page to prevent errors and confusion.
+hidden = TRUE
+
