@@ -49,27 +49,30 @@ class LibrariesTestCase extends DrupalWebTestCase {
     // Test missing library.
     $library = libraries_info('example_missing');
     libraries_detect_library($library);
-    $error = t('%library could not be found.', array(
+    $this->assertEqual($library['error'], 'not found', 'Non-existing library not found.');
+    $error_message = t('%library could not be found.', array(
       '%library' => $library['title'],
     ));
-    $this->assertEqual($library['error message'], $error, 'Non-existing library not found.');
+    $this->assertEqual($library['error message'], $error_message, 'Correct error message for a missing library.');
 
     // Test unknown library version.
     $library = libraries_info('example_undetected_version');
     libraries_detect_library($library);
-    $error = t('The version of %library could not be detected.', array(
+    $this->assertEqual($library['error'], 'not detected', 'Library version not found.');
+    $error_message = t('The version of %library could not be detected.', array(
       '%library' => $library['title'],
     ));
-    $this->assertEqual($library['error message'], $error, 'Library version not found.');
+    $this->assertEqual($library['error message'], $error_message, 'Correct error message for a library with an undetected version.');
 
     // Test unsupported library version.
     $library = libraries_info('example_unsupported_version');
     libraries_detect_library($library);
-    $error = t('The installed version %version of %library is not supported.', array(
+    $this->assertEqual($library['error'], 'not supported', 'Library version not supported.');
+    $error_message = t('The installed version %version of %library is not supported.', array(
       '%version' => $library['version'],
       '%library' => $library['title'],
     ));
-    $this->assertEqual($library['error message'], $error, 'Unsupported library version found.');
+    $this->assertEqual($library['error message'], $error_message, 'Correct error message for a library with an unsupported version.');
 
     // Test supported library version.
     $library = libraries_info('example_supported_version');
@@ -112,11 +115,12 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $library = libraries_info('example_variant_missing');
     libraries_detect_library($library);
     $variants = array_keys($library['variants']);
-    $error = t('The %variant variant of %library could not be found.', array(
+    $this->assertEqual($library['variants']['example_variant']['error'], 'not found', 'Missing variant not found');
+    $error_message = t('The %variant variant of %library could not be found.', array(
       '%variant' => $variants[0],
       '%library' => $library['title'],
     ));
-    $this->assertEqual($library['variants']['example_variant']['error message'], $error, 'Missing variant not found.');
+    $this->assertEqual($library['variants']['example_variant']['error message'], $error_message, 'Correct error message for a missing variant.');
 
     // Test existing variant.
     $library = libraries_info('example_variant');

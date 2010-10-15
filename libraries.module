@@ -265,20 +265,22 @@ function libraries_detect_library(&$library) {
     return;
   }
 
-  // Detect library version.
-  // We support both a single parameter, which is an associative array, and an
-  // indexed array of multiple parameters.
-  if (isset($library['version arguments'][0])) {
-    // Add the library as the first argument.
-    $library['version'] = call_user_func_array($library['version callback'], array_merge(array($library), $library['version arguments']));
-  }
-  else {
-    $library['version'] = $library['version callback']($library, $library['version arguments']);
-  }
-  if (empty($library['version'])) {
-    $library['error'] = 'not detected';
-    $library['error message'] = t('The version of %library could not be detected.', array('%library' => $library['title']));
-    return;
+  // Detect library version, if not hardcoded.
+  if (!isset($library['version'])) {
+    // We support both a single parameter, which is an associative array, and an
+    // indexed array of multiple parameters.
+    if (isset($library['version arguments'][0])) {
+      // Add the library as the first argument.
+      $library['version'] = call_user_func_array($library['version callback'], array_merge(array($library), $library['version arguments']));
+    }
+    else {
+      $library['version'] = $library['version callback']($library, $library['version arguments']);
+    }
+    if (empty($library['version'])) {
+      $library['error'] = 'not detected';
+      $library['error message'] = t('The version of %library could not be detected.', array('%library' => $library['title']));
+      return;
+    }
   }
 
   // Determine to which supported version the installed version maps.
@@ -346,7 +348,11 @@ function libraries_detect_library(&$library) {
 function libraries_load($library, $variant = NULL) {
   $library = libraries_info($library);
   libraries_detect_library($library);
-  libraries_load_files($library, $variant);
+  if ($library['installed']) {
+    libraries_load_files($library, $variant);
+    return TRUE;
+  }
+  return FALSE;
 }
 
 /**
@@ -359,7 +365,7 @@ function libraries_load($library, $variant = NULL) {
  */
 function libraries_load_files($library, $variant = NULL) {
   // Construct the full path to the library for later use.
-  $path = !empty($library['path']) ? $library['library path'] . '/' . $library['path'] : $library['library path'];
+  $path = (!empty($library['path']) ? $library['library path'] . '/' . $library['path'] : $library['library path']);
 
   // If a variant was specified, override the top-level properties with the
   // variant properties.
@@ -391,8 +397,9 @@ function libraries_load_files($library, $variant = NULL) {
           $data = "$path/$options";
           $options = NULL;
         }
-        // In some cases, the first parameter ($data) is an array. Arrays can't be
-        // passed as keys in PHP, so we have to get $data from the value array.
+        // In some cases, the first parameter ($data) is an array. Arrays can't
+        // be passed as keys in PHP, so we have to get $data from the value
+        // array.
         if (is_numeric($data)) {
           $data = $options['data'];
           unset($options['data']);
