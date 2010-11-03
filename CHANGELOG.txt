@@ -6,6 +6,7 @@ Libraries x.x-x.x, xxxx-xx-xx
 
 Libraries 7.x-1.x, xxxx-xx-xx
 -----------------------------
+#919632 by tstoeckler, sun: Allow library information to be stored in info files.
 by sun: Fixed testbot breaks upon directory name/info file name mismatch.
 #864376 by tstoeckler, sun: Code-cleanup, allow hard-coded 'version'.
 #939174 by sun, tstoeckler: Rename example.info to libraries_example.info.

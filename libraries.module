@@ -126,7 +126,7 @@ function libraries_get_libraries() {
  *   An array of info files, keyed by library name. The values are the paths of
  *   the files.
  */
-function libraries_info_files() {
+function libraries_scan_info_files() {
   global $profile;
   if (!isset($profile)) {
     $profile = variable_get('install_profile', 'default');
@@ -136,21 +136,24 @@ function libraries_info_files() {
   // Build a list of directories.
   $directories = module_invoke_all('libraries_info_file_paths');
   $directories[] = 'libraries';
-  $directories[] = "libraries/$profile/libraries";
+  $directories[] = "profiles/$profile/libraries";
   $directories[] = 'sites/all/libraries';
-  $directories[] = "sites/$config/libraries";
+  $directories[] = "$config/libraries";
 
   // Scan for info files.
   $files = array();
   foreach ($directories as $dir) {
-    $files += file_scan_directory($dir, '/[a-z[a-z0-9_]+.info/', array(
-      'key' => 'name',
-      'recurse' => FALSE,
-    ));
+    if (file_exists($dir)) {
+      $files = array_merge($files, file_scan_directory($dir, '@^[a-z0-9._-]+\.libraries\.info$@', array(
+        'key' => 'name',
+        'recurse' => FALSE,
+      )));
+    }
   }
 
-  foreach ($files as &$file) {
-    $file = $file->uri;
+  foreach ($files as $name => $file) {
+    $files[basename($name, '.libraries')] = $file;
+    unset($files[$name]);
   }
 
   return $files;
@@ -187,9 +190,10 @@ function libraries_info($library = NULL) {
       }
     }
     // Gather information from .info files.
-    foreach (libraries_info_files() as $name => $path) {
-      $file = "$path/$name.info";
-      $libraries[$name] = drupal_parse_info_file($file);
+    foreach (libraries_scan_info_files() as $name => $file) {
+      $properties = drupal_parse_info_file($file->uri);
+      $properties['info file'] = $file->uri;
+      $libraries[$name] = $properties;
     }
 
     // Provide defaults.
