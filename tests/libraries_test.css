@@ -4,12 +4,9 @@
  * @file
  * Test CSS file for Libraries loading.
  *
- * Because we cannot test CSS programatically with SimpleTest, the CSS below can
- * be useful for debugging with SimpleTest's verbose mode. Note that since the
- * DOM cannot be manipulated via CSS, JavaScript loading needs to be functional
- * for this to have any visible effect.
+ * Color the 'libraries-test-css' div blue. See README.txt for more information.
  */
 
-div#libraries-test {
+.libraries-test-css {
   color: purple;
 }

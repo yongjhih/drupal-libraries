@@ -4,10 +4,9 @@
  * @file
  * Test CSS file for Libraries loading.
  *
- * Color the 'libraries-test' div red. See example_installed.txt for more
- * information.
+ * Color the 'libraries-test-css' div red. See README.txt for more information.
  */
 
-div#libraries-test {
+.libraries-test-css {
   color: red;
 }

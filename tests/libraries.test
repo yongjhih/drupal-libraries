@@ -30,65 +30,83 @@ class LibrariesTestCase extends DrupalWebTestCase {
    * @todo Better method name(s); split into detection/loading/overloading/etc.
    */
   function testLibraries() {
+    // Test that library information is found correctly.
+    $library = libraries_info('example_simple');
+    $expected = array_merge(libraries_info('example_empty'), array(
+      'name' => 'Example simple',
+      'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
+      'version callback' => '_libraries_test_return_version',
+      'version arguments' => array('1'),
+      'files' => array(
+        'js' => array('example_1.js'),
+        'css' => array('example_1.css'),
+        'php' => array('example_1.php'),
+      ),
+    ));
+    $this->verbose(var_export($expected, TRUE));
+    $this->verbose(var_export($library, TRUE));
+    $this->assertEqual($library, $expected, 'Library information is correctly gathered.');
+
     // Test a library specified with an .info file gets detected.
-    $library = libraries_info('example');
-    $expected = array(
-      'title' => 'example',
-      'vendor url' => '',
-      'download url' => '',
-      'path' => '',
-      'version callback' => 'libraries_get_version',
-      'version arguments' => array(),
-      'files' => array(),
-      'variants' => array(),
-      'versions' => array(),
-      'integration files' => array(),
-    );
+    $library = libraries_info('example_info_file');
+    $expected = array_merge(libraries_info('example_empty'), array(
+      'name' => 'Example info file',
+      'info file' => drupal_get_path('module', 'libraries_test') . '/example/example_info_file.libraries.info',
+    ));
+    unset($expected['module']);
+    $this->verbose(var_export($expected, TRUE));
+    $this->verbose(var_export($library, TRUE));
     $this->assertEqual($library, $expected, 'Library specified with an .info file found');
 
     // Test missing library.
     $library = libraries_info('example_missing');
     libraries_detect_library($library);
-    $this->assertEqual($library['error'], 'not found', 'Non-existing library not found.');
+    $this->verbose(var_export($library, TRUE));
+    $this->assertEqual($library['error'], 'not found', 'Missing library not found.');
     $error_message = t('%library could not be found.', array(
-      '%library' => $library['title'],
+      '%library' => $library['name'],
     ));
     $this->assertEqual($library['error message'], $error_message, 'Correct error message for a missing library.');
 
     // Test unknown library version.
     $library = libraries_info('example_undetected_version');
     libraries_detect_library($library);
-    $this->assertEqual($library['error'], 'not detected', 'Library version not found.');
+    $this->verbose(var_export($library, TRUE));
+    $this->assertEqual($library['error'], 'not detected', 'Undetected version detected as such.');
     $error_message = t('The version of %library could not be detected.', array(
-      '%library' => $library['title'],
+      '%library' => $library['name'],
     ));
     $this->assertEqual($library['error message'], $error_message, 'Correct error message for a library with an undetected version.');
 
     // Test unsupported library version.
     $library = libraries_info('example_unsupported_version');
     libraries_detect_library($library);
-    $this->assertEqual($library['error'], 'not supported', 'Library version not supported.');
+    $this->verbose(var_export($library, TRUE));
+    $this->assertEqual($library['error'], 'not supported', 'Unsupported version detected as such.');
     $error_message = t('The installed version %version of %library is not supported.', array(
       '%version' => $library['version'],
-      '%library' => $library['title'],
+      '%library' => $library['name'],
     ));
     $this->assertEqual($library['error message'], $error_message, 'Correct error message for a library with an unsupported version.');
 
     // Test supported library version.
     $library = libraries_info('example_supported_version');
     libraries_detect_library($library);
+    $this->verbose(var_export($library, TRUE));
     $this->assertEqual($library['installed'], TRUE, 'Supported library version found.');
 
     // Test libraries_get_version().
     $library = libraries_info('example_default_version_callback');
     libraries_detect_library($library);
     $version = '2';
+    $this->verbose(var_export($library, TRUE));
     $this->assertEqual($library['version'], $version, 'Expected version returned by default version callback.');
 
     // Test a multiple-parameter version callback.
     $library = libraries_info('example_multiple_parameter_version_callback');
     libraries_detect_library($library);
     $version = '2';
+    $this->verbose(var_export($library, TRUE));
     $this->assertEqual($library['version'], $version, 'Expected version returned by multiple parameter version callback.');
 
     // Test a top-level files property.
@@ -99,6 +117,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
       'css' => array('example_1.css'),
       'php' => array('example_1.php'),
     );
+    $this->verbose(var_export($library, TRUE));
     $this->assertEqual($library['files'], $files, 'Top-level files property works.');
 
     // Test version-specific library files.
@@ -109,45 +128,48 @@ class LibrariesTestCase extends DrupalWebTestCase {
       'css' => array('example_2.css'),
       'php' => array('example_2.php'),
     );
+    $this->verbose(var_export($library, TRUE));
     $this->assertEqual($library['files'], $files, 'Version-specific library files found.');
 
     // Test missing variant.
     $library = libraries_info('example_variant_missing');
     libraries_detect_library($library);
     $variants = array_keys($library['variants']);
+    $this->verbose(var_export($library, TRUE));
     $this->assertEqual($library['variants']['example_variant']['error'], 'not found', 'Missing variant not found');
     $error_message = t('The %variant variant of %library could not be found.', array(
       '%variant' => $variants[0],
-      '%library' => $library['title'],
+      '%library' => $library['name'],
     ));
     $this->assertEqual($library['variants']['example_variant']['error message'], $error_message, 'Correct error message for a missing variant.');
 
     // Test existing variant.
     $library = libraries_info('example_variant');
     libraries_detect_library($library);
+    $this->verbose(var_export($library, TRUE));
     $this->assertEqual($library['variants']['example_variant']['installed'], TRUE, 'Existing variant found.');
 
     // Test loading of a simple library with a top-level files property.
     $this->drupalGet('libraries_test/simple');
-    $this->assertLibraryFiles('example_1');
+    $this->assertLibraryFiles('example_1', 'Simple library loading');
 
     // Test loading of integration files.
     $this->drupalGet('libraries_test/integration_files');
-    $this->assertRaw('libraries_test.js', 'The JavaScript integration file is loaded.');
-    $this->assertRaw('libraries_test.css', 'The CSS integration file is loaded.');
-    $this->assertText('libraries_test.inc', 'The PHP integration file is loaded.');
+    $this->assertRaw('libraries_test.js', 'Integration file loading: libraries_test.js found');
+    $this->assertRaw('libraries_test.css', 'Integration file loading: libraries_test.css found');
+    $this->assertRaw('libraries_test.inc', 'Integration file loading: libraries_test.inc found');
 
     // Test version overloading.
     $this->drupalGet('libraries_test/versions');
-    $this->assertLibraryFiles('example_2');
+    $this->assertLibraryFiles('example_2', 'Version overloading');
 
     // Test variant loading.
     $this->drupalGet('libraries_test/variant');
-    $this->assertLibraryFiles('example_3');
+    $this->assertLibraryFiles('example_3', 'Variant loading');
 
     // Test version overloading and variant loading.
     $this->drupalGet('libraries_test/versions_and_variants');
-    $this->assertLibraryFiles('example_4');
+    $this->assertLibraryFiles('example_4', 'Concurrent version and variant overloading');
   }
 
   /**
@@ -163,22 +185,32 @@ class LibrariesTestCase extends DrupalWebTestCase {
    *   other files will be asserted to not be loaded. See
    *   tests/example/README.txt for more information on how the loading of the
    *   files is tested.
+   * @param $label
+   *   (optional) A label to prepend to the assertion messages, to make them
+   *   less ambiguous.
+   * @param $extensions
+   *   (optional) The expected file extensions of $name. Defaults to
+   *   array('js', 'css', 'php').
    */
-  function assertLibraryFiles($name) {
+  function assertLibraryFiles($name, $label = '', $extensions = array('js', 'css', 'php')) {
     $names = drupal_map_assoc(array('example_1', 'example_2', 'example_3', 'example_4'));
     unset($names[$name]);
 
     // Test that the wrong files are not loaded.
     foreach ($names as $filename) {
-      $this->assertNoRaw("$filename.js", 'A wrong JavaScript file is not loaded.');
-      $this->assertNoRaw("$filename.css", 'A wrong CSS file is not loaded.');
-      $this->assertNoText("$filename.php", 'A wrong PHP file is not loaded.');
+      foreach ($extensions as $extension) {
+        $message = "$filename.$extension not found";
+        $message = ($label !== '' ? "$label: $message" : $message);
+        $this->assertNoRaw("$filename.$extension", $message);
+      }
     }
 
     // Test that the correct files are loaded.
-    $this->assertRaw("$name.js", 'The correct JavaScript file is loaded.');
-    $this->assertRaw("$name.css", 'The correct CSS file is loaded.');
-    $this->assertText("$name.php", 'The correct PHP file is loaded.');
+    foreach ($extensions as $extension) {
+      $message = "$filename.$extension found";
+      $message = ($label !== '' ? "$label: $message" : $message);
+      $this->assertRaw("$name.$extension", $message);
+    }
   }
 
 }

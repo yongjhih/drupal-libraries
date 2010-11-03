@@ -182,14 +182,15 @@ function libraries_info($library = NULL) {
 
   if (!isset($libraries)) {
     $libraries = array();
+    // Gather information from hook_libraries_info().
     foreach (module_implements('libraries_info') as $module) {
       foreach (module_invoke($module, 'libraries_info') as $name => $properties) {
         $properties['module'] = $module;
-        $properties['name'] = $name;
         $libraries[$name] = $properties;
       }
     }
     // Gather information from .info files.
+    // .info files override module definitions.
     foreach (libraries_scan_info_files() as $name => $file) {
       $properties = drupal_parse_info_file($file->uri);
       $properties['info file'] = $file->uri;
@@ -199,10 +200,11 @@ function libraries_info($library = NULL) {
     // Provide defaults.
     foreach ($libraries as $name => &$properties) {
       $properties += array(
-        'title' => $name,
+        'name' => $name,
         'vendor url' => '',
         'download url' => '',
         'path' => '',
+        'library path' => NULL,
         'version callback' => 'libraries_get_version',
         'version arguments' => array(),
         'files' => array(),
@@ -265,7 +267,7 @@ function libraries_detect_library(&$library) {
   }
   if (!file_exists($library['library path'])) {
     $library['error'] = 'not found';
-    $library['error message'] = t('%library could not be found.', array('%library' => $library['title']));
+    $library['error message'] = t('%library could not be found.', array('%library' => $library['name']));
     return;
   }
 
@@ -282,7 +284,7 @@ function libraries_detect_library(&$library) {
     }
     if (empty($library['version'])) {
       $library['error'] = 'not detected';
-      $library['error message'] = t('The version of %library could not be detected.', array('%library' => $library['title']));
+      $library['error message'] = t('The version of %library could not be detected.', array('%library' => $library['name']));
       return;
     }
   }
@@ -300,7 +302,7 @@ function libraries_detect_library(&$library) {
       $library['error'] = 'not supported';
       $library['error message'] = t('The installed version %version of %library is not supported.', array(
         '%version' => $library['version'],
-        '%library' => $library['title'],
+        '%library' => $library['name'],
       ));
       return;
     }
@@ -315,8 +317,10 @@ function libraries_detect_library(&$library) {
     foreach ($library['variants'] as $name => &$variant) {
       // If no variant callback has been set, assume the variant to be
       // installed.
-      $variant['installed'] = TRUE;
-      if (!empty($variant['variant callback'])) {
+      if (!isset($variant['variant callback'])) {
+        $variant['installed'] = TRUE;
+      }
+      else {
         // We support both a single parameter, which is an associative array,
         // and an indexed array of multiple parameters.
         if (isset($variant['variant arguments'][0])) {
@@ -326,11 +330,11 @@ function libraries_detect_library(&$library) {
         else {
           $variant['installed'] = $variant['variant callback']($library, $name, $variant['variant arguments']);
         }
-        if (empty($variant['installed'])) {
+        if (!$variant['installed']) {
           $variant['error'] = 'not found';
           $variant['error message'] = t('The %variant variant of %library could not be found.', array(
             '%variant' => $name,
-            '%library' => $library['title'],
+            '%library' => $library['name'],
           ));
         }
       }
@@ -344,48 +348,60 @@ function libraries_detect_library(&$library) {
 /**
  * Loads a library.
  *
- * @param $library
+ * @param $name
  *   The name of the library to load.
  * @param $variant
  *   The name of the variant to load.
  */
-function libraries_load($library, $variant = NULL) {
-  $library = libraries_info($library);
+function libraries_load($name, $variant = NULL) {
+  $library = libraries_info($name);
   libraries_detect_library($library);
-  if ($library['installed']) {
-    libraries_load_files($library, $variant);
-    return TRUE;
+
+  // If the library itself is not installed, do nothing;
+  if (!$library['installed']) {
+    return FALSE;
   }
-  return FALSE;
+
+  // If a variant was specified, override the top-level properties with the
+  // variant properties.
+  if (!empty($variant) && !empty($library['variants'][$variant])) {
+    // If the variant is not installed, do nothing.
+    if (!$library['variants'][$variant]['installed']) {
+      return FALSE;
+    }
+    $library = array_merge($library, $library['variants'][$variant]);
+  }
+
+  return libraries_load_files($library, $variant);
 }
 
 /**
  * Loads a library's files.
  *
  * @param $library
- *   The name of the library to load.
- * @param $variant
- *   The name of the variant to load.
+ *   An array of library information as returned by libraries_info().
+ *
+ * @return
+ *   The number of loaded files.
  */
-function libraries_load_files($library, $variant = NULL) {
-  // Construct the full path to the library for later use.
-  $path = (!empty($library['path']) ? $library['library path'] . '/' . $library['path'] : $library['library path']);
-
-  // If a variant was specified, override the top-level properties with the
-  // variant properties.
-  if (!empty($variant) && !empty($library['variants'][$variant]['installed'])) {
-    $library = array_merge($library, $library['variants'][$variant]);
-  }
-
+function libraries_load_files($library) {
   // Load integration files.
   if (!empty($library['integration files'])) {
     foreach ($library['integration files'] as $module => $files) {
       libraries_load_files(array(
         'files' => $files,
+        'path' => '',
         'library path' => drupal_get_path('module', $module),
       ));
     }
   }
+
+  // Construct the full path to the library for later use.
+  $path = $library['library path'];
+  $path = ($library['path'] !== '' ? $path . '/' . $library['path'] : $path);
+
+  // Count the number of loaded files for the return value.
+  $count = 0;
 
   // Load both the JavaScript and the CSS files.
   // The parameters for drupal_add_js() and drupal_add_css() require special
@@ -413,6 +429,7 @@ function libraries_load_files($library, $variant = NULL) {
           $options['weight'] = ($type == 'js') ? JS_DEFAULT : CSS_DEFAULT;
         }
         call_user_func('drupal_add_' . $type, $data, $options);
+        $count++;
       }
     }
   }
@@ -423,9 +440,12 @@ function libraries_load_files($library, $variant = NULL) {
       $file_path = DRUPAL_ROOT . '/' . $path . '/' . $file;
       if (file_exists($file_path)) {
         require_once $file_path;
+        $count++;
       }
     }
   }
+
+  return $count;
 }
 
 /**

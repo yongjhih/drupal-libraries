@@ -4,15 +4,15 @@
  * @file
  * Test JavaScript file for Libraries loading.
  *
- * Because we cannot test JavaScript programatically with SimpleTest, the
- * JavaScript below can be useful for debugging with SimpleTest's verbose mode.
+ * Replace the text in the 'libraries-test-javascript' div. See README.txt for
+ * more information.
  */
 
 (function ($) {
 
 Drupal.behaviors.librariesTest = {
   attach: function(context, settings) {
-    $('h1#page-title').after('<div id="libraries-test">If this text shows up, the JavaScript file was loaded successfully. If this text is purple, the CSS file was loaded successfully.</div>')
+    $('.libraries-test-javascript').text('If this text shows up, libraries_test.js was loaded successfully')
   }
 };
 

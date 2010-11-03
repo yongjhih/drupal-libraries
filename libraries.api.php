@@ -14,12 +14,17 @@
  *   values are describing each library. Each key is the directory name below
  *   the 'libraries' directory, in which the library may be found. Each value is
  *   an associative array containing:
- *   - title: The official, human-readable name of the library.
+ *   - name: The official, human-readable name of the library.
  *   - vendor url: The URL of the homepage of the library.
  *   - download url: The URL of a web page on which the library can be obtained.
  *   - path: (optional) A relative path from the directory of the library to the
  *     actual library. Only required if the extracted download package contains
  *     the actual library files in a sub-directory.
+ *   - library path: (optional) The absolute path to the library directory. This
+ *     should not be declared normally, as it is automatically detected, to
+ *     allow for multiple possible library locations. A valid use-case is an
+ *     external library, in which case the full URL to the library should be
+ *     specified here.
  *   - version callback: (optional) The name of a function that detects and
  *     returns the full version string of the library. The first argument is
  *     always $library, an array containing all library information as described
@@ -27,6 +32,13 @@
  *     arguments, either as a single $options parameter or as multiple
  *     parameters, which correspond to the two ways to specify the argument
  *     values (see 'version arguments'). Defaults to libraries_get_version().
+ *   - version: (optional) The version of the library. This should not be
+ *     declared normally, as it is automatically detected (see 'version
+ *     callback' below) to allow for version changes of libraries without code
+ *     changes of implementing modules and to support different versions of a
+ *     library simultaneously (though only one version can be installed per
+ *     site). A valid use-case is an external library whose version cannot be
+ *     determined programatically.
  *   - version arguments: A list of arguments to pass to the version callback.
  *     Version arguments can be declared either as an associative array whose
  *     keys are the argument names or as an indexed array without specifying
