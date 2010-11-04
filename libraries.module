@@ -20,7 +20,7 @@
  * @ingroup libraries
  */
 function libraries_get_path($library, $base_path = FALSE) {
-  static $libraries;
+  $libraries = &drupal_static(__FUNCTION__);
 
   if (!isset($libraries)) {
     $libraries = libraries_get_libraries();

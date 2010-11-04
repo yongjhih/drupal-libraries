@@ -6,6 +6,7 @@ Libraries x.x-x.x, xxxx-xx-xx
 
 Libraries 7.x-1.x, xxxx-xx-xx
 -----------------------------
+#924130 by aaronbauman: Fixed libraries_get_path() should use drupal_static().
 #958162 by tstoeckler, sun: Code clean-up, tests revamp, more robust loading.
 #919632 by tstoeckler, sun: Allow library information to be stored in info files.
 by sun: Fixed testbot breaks upon directory name/info file name mismatch.
