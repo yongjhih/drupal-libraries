@@ -207,7 +207,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
 
     // Test that the correct files are loaded.
     foreach ($extensions as $extension) {
-      $message = "$filename.$extension found";
+      $message = "$name.$extension found";
       $message = ($label !== '' ? "$label: $message" : $message);
       $this->assertRaw("$name.$extension", $message);
     }

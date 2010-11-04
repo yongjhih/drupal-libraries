@@ -200,6 +200,7 @@ function libraries_info($library = NULL) {
     // Provide defaults.
     foreach ($libraries as $name => &$properties) {
       $properties += array(
+        'machine_name' => $name,
         'name' => $name,
         'vendor url' => '',
         'download url' => '',
@@ -259,7 +260,7 @@ function libraries_detect($libraries) {
  */
 function libraries_detect_library(&$library) {
   $library['installed'] = FALSE;
-  $name = $library['name'];
+  $name = $library['machine_name'];
 
   // Check whether the library exists.
   if (!isset($library['library path'])) {
@@ -267,7 +268,9 @@ function libraries_detect_library(&$library) {
   }
   if (!file_exists($library['library path'])) {
     $library['error'] = 'not found';
-    $library['error message'] = t('%library could not be found.', array('%library' => $library['name']));
+    $library['error message'] = t('%library could not be found.', array(
+      '%library' => $library['name'],
+    ));
     return;
   }
 
@@ -284,7 +287,9 @@ function libraries_detect_library(&$library) {
     }
     if (empty($library['version'])) {
       $library['error'] = 'not detected';
-      $library['error message'] = t('The version of %library could not be detected.', array('%library' => $library['name']));
+      $library['error message'] = t('The version of %library could not be detected.', array(
+        '%library' => $library['name'],
+      ));
       return;
     }
   }
