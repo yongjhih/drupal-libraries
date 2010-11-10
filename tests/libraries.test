@@ -33,6 +33,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
     // Test that library information is found correctly.
     $library = libraries_info('example_simple');
     $expected = array_merge(libraries_info('example_empty'), array(
+      'machine name' => 'example_simple',
       'name' => 'Example simple',
       'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
       'version callback' => '_libraries_test_return_version',
@@ -50,6 +51,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
     // Test a library specified with an .info file gets detected.
     $library = libraries_info('example_info_file');
     $expected = array_merge(libraries_info('example_empty'), array(
+      'machine name' => 'example_info_file',
       'name' => 'Example info file',
       'info file' => drupal_get_path('module', 'libraries_test') . '/example/example_info_file.libraries.info',
     ));

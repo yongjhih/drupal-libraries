@@ -9,8 +9,8 @@
 /**
  * Helper function to build paths to libraries.
  *
- * @param $library
- *   The external library name to return the path for.
+ * @param $name
+ *   The machine name of a library to return the path for.
  * @param $base_path
  *   Whether to prefix the resulting path with base_path().
  *
@@ -19,7 +19,7 @@
  *
  * @ingroup libraries
  */
-function libraries_get_path($library, $base_path = FALSE) {
+function libraries_get_path($name, $base_path = FALSE) {
   $libraries = &drupal_static(__FUNCTION__);
 
   if (!isset($libraries)) {
@@ -27,13 +27,13 @@ function libraries_get_path($library, $base_path = FALSE) {
   }
 
   $path = ($base_path ? base_path() : '');
-  if (!isset($libraries[$library])) {
+  if (!isset($libraries[$name])) {
     // Most often, external libraries can be shared across multiple sites, so
     // we return sites/all/libraries as the default path.
-    $path .= 'sites/all/libraries/' . $library;
+    $path .= 'sites/all/libraries/' . $name;
   }
   else {
-    $path .= $libraries[$library];
+    $path .= $libraries[$name];
   }
 
   return $path;
@@ -151,9 +151,9 @@ function libraries_scan_info_files() {
     }
   }
 
-  foreach ($files as $name => $file) {
-    $files[basename($name, '.libraries')] = $file;
-    unset($files[$name]);
+  foreach ($files as $filename => $file) {
+    $files[basename($filename, '.libraries')] = $file;
+    unset($files[$filename]);
   }
 
   return $files;
@@ -163,8 +163,8 @@ function libraries_scan_info_files() {
  *
  * The returned information is unprocessed, i.e. as registered by modules.
  *
- * @param $library
- *   (optional) The internal name of a library to return registered information
+ * @param $name
+ *   (optional) The machine name of a library to return registered information
  *   for, or FALSE if no library with the given name exists. If omitted,
  *   information about all libraries is returned.
  *
@@ -177,31 +177,31 @@ function libraries_scan_info_files() {
  * @todo Re-introduce support for include file plugin system - either by copying
  *   Wysiwyg's code, or directly switching to CTools.
  */
-function libraries_info($library = NULL) {
+function libraries_info($name = NULL) {
   $libraries = &drupal_static(__FUNCTION__);
 
   if (!isset($libraries)) {
     $libraries = array();
     // Gather information from hook_libraries_info().
     foreach (module_implements('libraries_info') as $module) {
-      foreach (module_invoke($module, 'libraries_info') as $name => $properties) {
+      foreach (module_invoke($module, 'libraries_info') as $machine_name => $properties) {
         $properties['module'] = $module;
-        $libraries[$name] = $properties;
+        $libraries[$machine_name] = $properties;
       }
     }
     // Gather information from .info files.
     // .info files override module definitions.
-    foreach (libraries_scan_info_files() as $name => $file) {
+    foreach (libraries_scan_info_files() as $machine_name => $file) {
       $properties = drupal_parse_info_file($file->uri);
       $properties['info file'] = $file->uri;
-      $libraries[$name] = $properties;
+      $libraries[$machine_name] = $properties;
     }
 
     // Provide defaults.
-    foreach ($libraries as $name => &$properties) {
+    foreach ($libraries as $machine_name => &$properties) {
       $properties += array(
-        'machine_name' => $name,
-        'name' => $name,
+        'machine name' => $machine_name,
+        'name' => $machine_name,
         'vendor url' => '',
         'download url' => '',
         'path' => '',
@@ -219,8 +219,8 @@ function libraries_info($library = NULL) {
     drupal_alter('libraries_info', $libraries);
   }
 
-  if (isset($library)) {
-    return !empty($libraries[$library]) ? $libraries[$library] : FALSE;
+  if (isset($name)) {
+    return !empty($libraries[$name]) ? $libraries[$name] : FALSE;
   }
   return $libraries;
 }
@@ -260,7 +260,7 @@ function libraries_detect($libraries) {
  */
 function libraries_detect_library(&$library) {
   $library['installed'] = FALSE;
-  $name = $library['machine_name'];
+  $name = $library['machine name'];
 
   // Check whether the library exists.
   if (!isset($library['library path'])) {
@@ -319,7 +319,7 @@ function libraries_detect_library(&$library) {
 
   // Check each variant if it is installed.
   if (!empty($library['variants'])) {
-    foreach ($library['variants'] as $name => &$variant) {
+    foreach ($library['variants'] as $variant_name => &$variant) {
       // If no variant callback has been set, assume the variant to be
       // installed.
       if (!isset($variant['variant callback'])) {
@@ -330,15 +330,15 @@ function libraries_detect_library(&$library) {
         // and an indexed array of multiple parameters.
         if (isset($variant['variant arguments'][0])) {
           // Add the library as the first argument, and the variant name as the second.
-          $variant['installed'] = call_user_func_array($variant['variant callback'], array_merge(array($library, $name), $variant['variant arguments']));
+          $variant['installed'] = call_user_func_array($variant['variant callback'], array_merge(array($library, $variant_name), $variant['variant arguments']));
         }
         else {
-          $variant['installed'] = $variant['variant callback']($library, $name, $variant['variant arguments']);
+          $variant['installed'] = $variant['variant callback']($library, $variant_name, $variant['variant arguments']);
         }
         if (!$variant['installed']) {
           $variant['error'] = 'not found';
           $variant['error message'] = t('The %variant variant of %library could not be found.', array(
-            '%variant' => $name,
+            '%variant' => $variant_name,
             '%library' => $library['name'],
           ));
         }
