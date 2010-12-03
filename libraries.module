@@ -429,9 +429,9 @@ function libraries_load_files($library) {
           $data = $options['data'];
           unset($options['data']);
         }
-        // Apply the default weight if the weight isn't explicitly given.
-        if (!isset($options['weight'])) {
-          $options['weight'] = ($type == 'js') ? JS_DEFAULT : CSS_DEFAULT;
+        // Apply the default group if the group isn't explicitly given.
+        if (!isset($options['group'])) {
+          $options['group'] = ($type == 'js') ? JS_DEFAULT : CSS_DEFAULT;
         }
         call_user_func('drupal_add_' . $type, $data, $options);
         $count++;
@@ -498,4 +498,3 @@ function libraries_get_version($library, $options) {
   }
   fclose($file);
 }
-
