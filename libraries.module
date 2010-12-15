@@ -64,7 +64,7 @@ function libraries_get_libraries() {
   // contains the name of the current profile, and we can call variable_get()
   // to determine the profile.
   if (!isset($profile)) {
-    $profile = variable_get('install_profile', 'default');
+    $profile = variable_get('install_profile', 'standard');
   }
 
   $directory = 'libraries';
@@ -129,7 +129,7 @@ function libraries_get_libraries() {
 function libraries_scan_info_files() {
   global $profile;
   if (!isset($profile)) {
-    $profile = variable_get('install_profile', 'default');
+    $profile = variable_get('install_profile', 'standard');
   }
   $config = conf_path();
 

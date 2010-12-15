@@ -6,6 +6,7 @@ Libraries x.x-x.x, xxxx-xx-xx
 
 Libraries 7.x-1.x, xxxx-xx-xx
 -----------------------------
+#995988 by good_man: Wrong default install profile.
 #975498 by Gábor Hojtsy: Update JS/CSS-loading to new drupal_add_js/css() API.
 #958162 by tsteoeckler, sun: Consistent variable naming.
 #924130 by aaronbauman: Fixed libraries_get_path() should use drupal_static().
