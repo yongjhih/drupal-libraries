@@ -56,19 +56,9 @@ function libraries_get_path($name, $base_path = FALSE) {
  * @ingroup libraries
  */
 function libraries_get_libraries() {
-  global $profile;
-
-  // When this function is called during Drupal's initial installation process,
-  // the name of the profile that is about to be installed is stored in the
-  // global $profile variable. At all other times, the regular system variable
-  // contains the name of the current profile, and we can call variable_get()
-  // to determine the profile.
-  if (!isset($profile)) {
-    $profile = variable_get('install_profile', 'standard');
-  }
-
   $directory = 'libraries';
   $searchdir = array();
+  $profile = drupal_get_profile();
   $config = conf_path();
 
   // Similar to 'modules' and 'themes' directories in the root directory,
@@ -127,10 +117,7 @@ function libraries_get_libraries() {
  *   the files.
  */
 function libraries_scan_info_files() {
-  global $profile;
-  if (!isset($profile)) {
-    $profile = variable_get('install_profile', 'standard');
-  }
+  $profile = drupal_get_profile();
   $config = conf_path();
 
   // Build a list of directories.
