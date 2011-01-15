@@ -343,28 +343,45 @@ function libraries_detect_library(&$library) {
  * @param $name
  *   The name of the library to load.
  * @param $variant
- *   The name of the variant to load.
+ *   The name of the variant to load. Note that only one variant of a library
+ *   can be loaded within a single request. The variant that has been passed
+ *   first is used; different variant names in subsequent calls are ignored.
+ *
+ * @return
+ *   An associative array of the library information as returned from
+ *   libraries_info(). The top-level properties contain the effective definition
+ *   of the library (variant) that has been loaded. Additionally:
+ *   - installed: Whether the library is installed, as determined by
+ *     libraries_detect_library().
+ *   - loaded: Either the amount of library files that have been loaded, or
+ *     FALSE if the library could not be loaded.
+ *   See hook_libraries_info() for more information.
  */
 function libraries_load($name, $variant = NULL) {
-  $library = libraries_info($name);
-  libraries_detect_library($library);
+  $loaded = &drupal_static(__FUNCTION__, array());
 
-  // If the library itself is not installed, do nothing;
-  if (!$library['installed']) {
-    return FALSE;
-  }
+  if (!isset($loaded[$name])) {
+    $library = libraries_info($name);
+    libraries_detect_library($library);
 
-  // If a variant was specified, override the top-level properties with the
-  // variant properties.
-  if (!empty($variant) && !empty($library['variants'][$variant])) {
-    // If the variant is not installed, do nothing.
-    if (!$library['variants'][$variant]['installed']) {
-      return FALSE;
+    // If a variant was specified, override the top-level properties with the
+    // variant properties.
+    if (isset($variant)) {
+      // Ensure that the $variant key exists, and if it does not, set its
+      // 'installed' property to FALSE by default. This will prevent the loading
+      // of the library files below.
+      $library['variants'] += array($variant => array('installed' => FALSE));
+      $library = array_merge($library, $library['variants'][$variant]);
     }
-    $library = array_merge($library, $library['variants'][$variant]);
+    // If the library (variant) is installed, load it.
+    $library['loaded'] = FALSE;
+    if ($library['installed']) {
+      $library['loaded'] = libraries_load_files($library);
+    }
+    $loaded[$name] = $library;
   }
 
-  return libraries_load_files($library, $variant);
+  return $loaded[$name];
 }
 
 /**
