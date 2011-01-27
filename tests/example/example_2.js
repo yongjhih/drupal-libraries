@@ -12,7 +12,7 @@
 
 Drupal.behaviors.librariesTest = {
   attach: function(context, settings) {
-    $('.libraries-test-javascript').text('If this text shows up, example_2.js was loaded successfully')
+    $('.libraries-test-javascript').text('If this text shows up, example_2.js was loaded successfully.')
   }
 };
 

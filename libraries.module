@@ -7,7 +7,7 @@
  */
 
 /**
- * Helper function to build paths to libraries.
+ * Gets the path of a library.
  *
  * @param $name
  *   The machine name of a library to return the path for.
@@ -40,7 +40,7 @@ function libraries_get_path($name, $base_path = FALSE) {
 }
 
 /**
- * Return an array of library directories.
+ * Returns an array of library directories.
  *
  * Returns an array of library directories from the all-sites directory
  * (i.e. sites/all/libraries/), the profiles directory, and site-specific
@@ -215,14 +215,13 @@ function libraries_info($name = NULL) {
 /**
  * Detect libraries and library versions.
  *
- * @todo It makes little sense to pass $libraries by reference here. We need to
- *   figure out whether, and if, how we want to retain the processed
- *   information. I.e. either use a static cache here, or make libraries_info()
- *   conditionally invoke libraries_detect($name). D7 only way: Re-use
- *   drupal_static() of libraries_info() - but would still require to update the
- *   (DB) cache (there likely will be one soon).
- *   Also, we probably do not want to ALWAYS parse ALL possible libraries; rather,
- *   the requesting/consuming module likely wants to know whether a list of
+ * @todo We need to figure out whether, and if, how we want to retain the
+ *   processed information. I.e. either use a static cache here, or make
+ *   libraries_info() conditionally invoke libraries_detect($name). D7 only way:
+ *   Re-use drupal_static() of libraries_info() - but would still require to
+ *   update the (DB) cache (there likely will be one soon). Also, we probably do
+ *   not want to ALWAYS parse ALL possible libraries; rather, the
+ *   requesting/consuming module likely wants to know whether a list of
  *   supported libraries (possibly those registered by itself, or in a certain
  *   "category") is available... Food for thought.
  *
@@ -233,7 +232,7 @@ function libraries_info($name = NULL) {
  */
 function libraries_detect($libraries) {
   foreach ($libraries as &$library) {
-    libraries_detect_library($library);
+    $library = libraries_detect_library($library);
   }
   return $libraries;
 }
@@ -243,19 +242,18 @@ function libraries_detect($libraries) {
  *
  * @param $library
  *   An associative array describing a single library, as returned from
- *   libraries_info(), passed by reference.
+ *   libraries_info().
  */
-function libraries_detect_library(&$library) {
+function libraries_detect_library($library) {
   $library['installed'] = FALSE;
-  $name = $library['machine name'];
 
   // Check whether the library exists.
   if (!isset($library['library path'])) {
-    $library['library path'] = libraries_get_path($name);
+    $library['library path'] = libraries_get_path($library['machine name']);
   }
   if (!file_exists($library['library path'])) {
     $library['error'] = 'not found';
-    $library['error message'] = t('%library could not be found.', array(
+    $library['error message'] = t('The %library library could not be found.', array(
       '%library' => $library['name'],
     ));
     return;
@@ -274,7 +272,7 @@ function libraries_detect_library(&$library) {
     }
     if (empty($library['version'])) {
       $library['error'] = 'not detected';
-      $library['error message'] = t('The version of %library could not be detected.', array(
+      $library['error message'] = t('The version of the %library library could not be detected.', array(
         '%library' => $library['name'],
       ));
       return;
@@ -292,7 +290,7 @@ function libraries_detect_library(&$library) {
     }
     if (!$version) {
       $library['error'] = 'not supported';
-      $library['error message'] = t('The installed version %version of %library is not supported.', array(
+      $library['error message'] = t('The installed version %version of the %library library is not supported.', array(
         '%version' => $library['version'],
         '%library' => $library['name'],
       ));
@@ -324,7 +322,7 @@ function libraries_detect_library(&$library) {
         }
         if (!$variant['installed']) {
           $variant['error'] = 'not found';
-          $variant['error message'] = t('The %variant variant of %library could not be found.', array(
+          $variant['error message'] = t('The %variant variant of the %library library could not be found.', array(
             '%variant' => $variant_name,
             '%library' => $library['name'],
           ));
@@ -335,6 +333,7 @@ function libraries_detect_library(&$library) {
 
   // If we end up here, the library should be usable.
   $library['installed'] = TRUE;
+  return $library;
 }
 
 /**
@@ -361,8 +360,7 @@ function libraries_load($name, $variant = NULL) {
   $loaded = &drupal_static(__FUNCTION__, array());
 
   if (!isset($loaded[$name])) {
-    $library = libraries_info($name);
-    libraries_detect_library($library);
+    $library = libraries_detect_library(libraries_info($name));
 
     // If a variant was specified, override the top-level properties with the
     // variant properties.
@@ -373,6 +371,10 @@ function libraries_load($name, $variant = NULL) {
       $library['variants'] += array($variant => array('installed' => FALSE));
       $library = array_merge($library, $library['variants'][$variant]);
     }
+    // Regardless of whether a specific variant was requested or not, there can
+    // only be one variant of a library within a single request.
+    unset($library['variants']);
+
     // If the library (variant) is installed, load it.
     $library['loaded'] = FALSE;
     if ($library['installed']) {
@@ -467,7 +469,7 @@ function libraries_load_files($library) {
  *   - file: The filename to parse for the version, relative to the library
  *     path. For example: 'docs/changelog.txt'.
  *   - pattern: A string containing a regular expression (PCRE) to match the
- *     library version. For example: '/@version (\d+)\.(\d+)/'.
+ *     library version. For example: '@version\s+([0-9a-zA-Z\.-]+)@'.
  *   - lines: (optional) The maximum number of lines to search the pattern in.
  *     Defaults to 20.
  *   - cols: (optional) The maximum number of characters per line to take into

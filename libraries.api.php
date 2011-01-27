@@ -25,13 +25,6 @@
  *     allow for multiple possible library locations. A valid use-case is an
  *     external library, in which case the full URL to the library should be
  *     specified here.
- *   - version callback: (optional) The name of a function that detects and
- *     returns the full version string of the library. The first argument is
- *     always $library, an array containing all library information as described
- *     here. There are two ways to declare the version callback's additional
- *     arguments, either as a single $options parameter or as multiple
- *     parameters, which correspond to the two ways to specify the argument
- *     values (see 'version arguments'). Defaults to libraries_get_version().
  *   - version: (optional) The version of the library. This should not be
  *     declared normally, as it is automatically detected (see 'version
  *     callback' below) to allow for version changes of libraries without code
@@ -39,6 +32,13 @@
  *     library simultaneously (though only one version can be installed per
  *     site). A valid use-case is an external library whose version cannot be
  *     determined programatically.
+ *   - version callback: (optional) The name of a function that detects and
+ *     returns the full version string of the library. The first argument is
+ *     always $library, an array containing all library information as described
+ *     here. There are two ways to declare the version callback's additional
+ *     arguments, either as a single $options parameter or as multiple
+ *     parameters, which correspond to the two ways to specify the argument
+ *     values (see 'version arguments'). Defaults to libraries_get_version().
  *   - version arguments: A list of arguments to pass to the version callback.
  *     Version arguments can be declared either as an associative array whose
  *     keys are the argument names or as an indexed array without specifying
@@ -52,7 +52,7 @@
  *     - file: The filename to parse for the version, relative to the library
  *       path. For example: 'docs/changelog.txt'.
  *     - pattern: A string containing a regular expression (PCRE) to match the
- *       library version. For example: '/@version (\d+)\.(\d+)/'.
+ *       library version. For example: '@version\s+([0-9a-zA-Z\.-]+)@'.
  *     - lines: (optional) The maximum number of lines to search the pattern in.
  *       Defaults to 20.
  *     - cols: (optional) The maximum number of characters per line to take into
@@ -72,15 +72,16 @@
  *     associative array of top-level properties that are entirely overridden by
  *     the variant, most often just 'files'. Additionally, each variant can
  *     contain following properties:
- *     - variant callback: (optional) The name of a function that detects
- *       returns TRUE or FALSE, depending on whether the variant is available or
- *       not. The first argument is always $library, an array containing all
- *       library information as described here. The second is always a string
- *       containing the variant name. There are two ways to declare the variant
- *       callback's additinal arguments, either as a single $options parameter
- *       or as multiple parameters, which correspond to the two ways to specify
- *       the argument values (see 'variant arguments'). If ommitted, the variant
- *       is expected to always be available.
+ *     - variant callback: (optional) The name of a function that detects the
+ *       variant and returns TRUE or FALSE, depending on whether the variant is
+ *       available or not. The first argument is always $library, an array
+ *       containing all library information as described here. The second
+ *       argument is always a string containing the variant name. There are two
+ *       ways to declare the variant callback's additinal arguments, either as a
+ *       single $options parameter or as multiple parameters, which correspond
+ *       to the two ways to specify the argument values (see 'variant
+ *       arguments'). If ommitted, the variant is expected to always be
+ *       available.
  *     - variant arguments: A list of arguments to pass to the variant callback.
  *       Variant arguments can be declared either as an associative array whose
  *       keys are the argument names or as an indexed array without specifying
@@ -89,19 +90,19 @@
  *       argument names (i.e. $options is identical to the specified array). If
  *       declared as an indexed array, the array values get passed to the
  *       variant callback as seperate arguments in the order they were declared.
- *     Variants can be version specific.
+ *     Variants can be version-specific (see 'versions').
  *   - versions: (optional) An associative array of supported library versions.
- *     Naturally, external libraries evolve over time and so do their APIs. In
- *     case a library changes between versions, different 'files' may need to be
+ *     Naturally, libraries evolve over time and so do their APIs. In case a
+ *     library changes between versions, different 'files' may need to be
  *     loaded, different 'variants' may become available, or Drupal modules need
- *     to load different integration files adapted to the new version.
- *     Each key is a version *string* (PHP does not support floats as keys).
- *     Each value is an associative array of top-level properties that are
- *     entirely overridden by the version.
+ *     to load different integration files adapted to the new version. Each key
+ *     is a version *string* (PHP does not support floats as keys). Each value
+ *     is an associative array of top-level properties that are entirely
+ *     overridden by the version.
  *   - integration files: (optional) An associative array whose keys are module
  *     names and whose values are sets of files to load for the module, using
  *     the same notion as the top-level 'files' property. Each specified file
- *     should contain the full path to the file.
+ *     should contain the path to the file relative to the module it belongs to.
  *   Additional top-level properties can be registered as needed.
  *
  * @see hook_library()
@@ -126,7 +127,7 @@ function hook_libraries_info() {
     // libraries_get_version() takes a named argument array:
     'version arguments' => array(
       'file' => 'docs/CHANGELOG.txt',
-      'pattern' => '/@version (\d+)\.(\d+)/',
+      'pattern' => '@version\s+([0-9a-zA-Z\.-]+)@',
       'lines' => 5,
       'cols' => 20,
     ),
@@ -183,22 +184,14 @@ function hook_libraries_info() {
     'versions' => array(
       '2' => array(
         'files' => array(
-          'js' => array(
-            'exlib.js',
-          ),
-          'css' => array(
-            'exlib_style.css',
-          ),
+          'js' => array('exlib.js'),
+          'css' => array('exlib_style.css'),
         ),
       ),
       '3.0' => array(
         'files' => array(
-          'js' => array(
-            'exlib.js',
-          ),
-          'css' => array(
-            'lib_style.css',
-          ),
+          'js' => array('exlib.js'),
+          'css' => array('lib_style.css'),
         ),
       ),
       '3.2' => array(
@@ -218,7 +211,7 @@ function hook_libraries_info() {
     // keyed by module, and follow the syntax of the 'files' property.
     'integration files' => array(
       'mymodule' => array(
-        'js' => 'ex_lib.inc',
+        'js' => array('ex_lib.inc'),
       ),
     ),
   );
@@ -233,13 +226,11 @@ function hook_libraries_info() {
       'file' => 'readme.txt',
       // Best practice: Document the actual version strings for later reference.
       // 1.x: Version 1.0
-      'pattern' => '/Version (\d+)\.(\d+)/',
+      'pattern' => '/Version (\d+)/',
       'lines' => 5,
     ),
     'files' => array(
-      'js' => array(
-        'simple.js',
-      ),
+      'js' => array('simple.js'),
     ),
   );
 
@@ -249,6 +240,9 @@ function hook_libraries_info() {
     'vendor url' => 'http://tinymce.moxiecode.com',
     'download url' => 'http://tinymce.moxiecode.com/download.php',
     'path' => 'jscripts/tiny_mce',
+    // The regular expression catches two parts (the major and the minor
+    // version), which libraries_get_version() doesn't allow.
+    'version callback' => 'tinymce_get_version',
     'version arguments' => array(
       // It can be easier to parse the first characters of a minified file
       // instead of doing a multi-line pattern matching in a source file. See
@@ -275,12 +269,8 @@ function hook_libraries_info() {
         ),
         'integration files' => array(
           'wysiwyg' => array(
-            'js' => array(
-              drupal_get_path('module', 'wysiwyg') . '/editors/js/tinymce-2.js',
-            ),
-            'css' => array(
-              drupal_get_path('module', 'wysiwyg') . '/editors/js/tinymce-2.css',
-            ),
+            'js' => array('editors/js/tinymce-2.js'),
+            'css' => array('editors/js/tinymce-2.css'),
           ),
         ),
       ),
@@ -312,12 +302,8 @@ function hook_libraries_info() {
         ),
         'integration files' => array(
           'wysiwyg' => array(
-            'js' => array(
-              drupal_get_path('module', 'wysiwyg') . '/editors/js/tinymce-3.js',
-            ),
-            'css' => array(
-              drupal_get_path('module', 'wysiwyg') . '/editors/js/tinymce-3.css',
-            ),
+            'js' => array('editors/js/tinymce-3.js'),
+            'css' => array('editors/js/tinymce-3.css'),
           ),
         ),
       ),

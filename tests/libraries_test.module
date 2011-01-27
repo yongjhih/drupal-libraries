@@ -14,8 +14,6 @@ function libraries_test_libraries_info() {
   $libraries['example_missing'] = array(
     'name' => 'Example missing',
     'library path' => drupal_get_path('module', 'libraries') . '/tests/missing',
-    'version callback' => '_libraries_test_return_version',
-    'version arguments' => array('1'),
   );
   $libraries['example_undetected_version'] = array(
     'name' => 'Example undetected version',
@@ -37,9 +35,9 @@ function libraries_test_libraries_info() {
     'name' => 'Example supported version',
     'library path' => drupal_get_path('module', 'libraries') . '/tests',
     'version callback' => '_libraries_test_return_version',
-    'version arguments' => array('2'),
+    'version arguments' => array('1'),
     'versions' => array(
-      '2' => array(),
+      '1' => array(),
     ),
   );
 
@@ -49,7 +47,7 @@ function libraries_test_libraries_info() {
     'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
     'version arguments' => array(
       'file' => 'README.txt',
-      // Version 2
+      // Version 1
       'pattern' => '/Version (\d+)/',
       'lines' => 5,
     ),
@@ -57,29 +55,22 @@ function libraries_test_libraries_info() {
 
   // Test a multiple-parameter version callback.
   $libraries['example_multiple_parameter_version_callback'] = array(
-    'name' => 'Example_multiple_parameter_version_callback',
+    'name' => 'Example multiple parameter version callback',
     'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
-    // Version 2
+    // Version 1
     'version callback' => '_libraries_test_get_version',
     'version arguments' => array('README.txt', '/Version (\d+)/', 5),
   );
 
   // Test a top-level files property.
-  $libraries['example_simple'] = array(
-    'name' => 'Example simple',
+  $libraries['example_files'] = array(
+    'name' => 'Example files',
     'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
-    'version callback' => '_libraries_test_return_version',
-    'version arguments' => array('1'),
+    'version' => '1',
     'files' => array(
-      'js' => array(
-        'example_1.js',
-      ),
-      'css' => array(
-        'example_1.css',
-      ),
-      'php' => array(
-        'example_1.php'
-      ),
+      'js' => array('example_1.js'),
+      'css' => array('example_1.css'),
+      'php' => array('example_1.php'),
     ),
   );
 
@@ -89,8 +80,7 @@ function libraries_test_libraries_info() {
   $libraries['example_integration_files'] = array(
     'name' => 'Example integration files',
     'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
-    'version callback' => '_libraries_test_return_version',
-    'version arguments' => array('2'),
+    'version' => '1',
     'integration files' => array(
       'libraries_test' => array(
         'js' => array('libraries_test.js'),
@@ -104,8 +94,7 @@ function libraries_test_libraries_info() {
   $libraries['example_versions'] = array(
     'name' => 'Example versions',
     'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
-    'version callback' => '_libraries_test_return_version',
-    'version arguments' => array('2'),
+    'version' => '2',
     'versions' => array(
       '1' => array(
         'files' => array(
@@ -128,8 +117,7 @@ function libraries_test_libraries_info() {
   $libraries['example_variant_missing'] = array(
     'name' => 'Example variant missing',
     'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
-    'version callback' => '_libraries_test_return_version',
-    'version arguments' => array('2'),
+    'version' => '1',
     'variants' => array(
       'example_variant' => array(
         'files' => array(
@@ -146,8 +134,7 @@ function libraries_test_libraries_info() {
   $libraries['example_variant'] = array(
     'name' => 'Example variant',
     'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
-    'version callback' => '_libraries_test_return_version',
-    'version arguments' => array('2'),
+    'version' => '1',
     'variants' => array(
       'example_variant' => array(
         'files' => array(
@@ -165,8 +152,7 @@ function libraries_test_libraries_info() {
   $libraries['example_versions_and_variants'] = array(
     'name' => 'Example versions and variants',
     'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
-    'version callback' => '_libraries_test_return_version',
-    'version arguments' => array('2'),
+    'version' => '2',
     'versions' => array(
       '1' => array(
         'variants' => array(
@@ -247,9 +233,9 @@ function _libraries_test_return_version($library, $version) {
  * exact copy of libraries_get_version(), which uses a single $option argument,
  * except for the fact that it uses multiple arguments. Since we support both
  * type of version callbacks, detecting the version of a test library with this
- * ensures that the arguments are passed correctly. This function might be
- * a useful reference for a custom version callback that uses multiple
- * parameters
+ * function ensures that the arguments are passed correctly. This function might
+ * be a useful reference for a custom version callback that uses multiple
+ * parameters.
  *
  * @param $library
  *   An associative array containing all information about the library.
@@ -304,10 +290,10 @@ function _libraries_test_return_installed($library, $name, $installed) {
  * Implements hook_menu().
  */
 function libraries_test_menu() {
-  $items['libraries_test/simple'] = array(
-    'title' => 'Test simple library',
+  $items['libraries_test/files'] = array(
+    'title' => 'Test files',
     'page callback' => '_libraries_test_load',
-    'page arguments' => array('example_simple'),
+    'page arguments' => array('example_files'),
     'access callback' => TRUE,
   );
   $items['libraries_test/integration_files'] = array(

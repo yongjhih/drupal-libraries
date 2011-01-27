@@ -54,34 +54,31 @@ function libraries_drush_list() {
   else {
     $header = array('Name', 'Status', 'Version', 'Variants');
     $rows = array();
-    foreach ($libraries as $library_name => $library) {
-      $version = $library['version'];
+    foreach ($libraries as $name => $library) {
+      // Status and version
       if ($library['installed']) {
         $status = 'OK';
+        $version = $library['version'];
       }
       else {
         $status = drupal_ucfirst($library['error']);
         $version = (empty($library['version']) ? '-' : $library['version']);
       }
-      if (empty($library['variants'])) {
+      // Variants
+      $variants = array();
+      foreach ($library['variants'] as $variant_name => $variant) {
+        if ($variant['installed']) {
+          $variants[] = $variant_name;
+        }
+      }
+      if (empty($variants)) {
         $variants = '-';
       }
       else {
-        $variants = array();
-        foreach ($library['variants'] as $variant_name => $variant) {
-          if ($variant['installed']) {
-            $variants[] = $variant_name;
-          }
-        }
-        if (empty($variants)) {
-          $variants = '-';
-        }
-        else {
-          $variants = implode(', ', $variants);
-        }
+        $variants = implode(', ', $variants);
       }
 
-      $rows[] = array($library_name, $status, $version, $variants);
+      $rows[] = array($name, $status, $version, $variants);
     }
     $table = new Console_Table();
     drush_print($table->fromArray($header, $rows));
