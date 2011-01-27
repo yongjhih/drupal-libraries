@@ -7,7 +7,7 @@
  */
 
 /**
- * Helper function to build paths to libraries.
+ * Gets the path of a library.
  *
  * @param $name
  *   The machine name of a library to return the path for.
@@ -40,7 +40,7 @@ function libraries_get_path($name, $base_path = FALSE) {
 }
 
 /**
- * Return an array of library directories.
+ * Returns an array of library directories.
  *
  * Returns an array of library directories from the all-sites directory
  * (i.e. sites/all/libraries/), the profiles directory, and site-specific

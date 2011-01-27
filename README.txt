@@ -23,7 +23,8 @@ Bug reports, feature suggestions and latest developments:
 -- CONTACT --
 
 Current maintainers:
-* Daniel F. Kudwien (sun) - http://www.unleashedmind.com
+* Daniel F. Kudwien (sun) - http://drupal.org/user/54136
+* Tobias Stöckler (tstoeckler) - http://drupal.org/user/107158
 
 
 This project has been sponsored by:
