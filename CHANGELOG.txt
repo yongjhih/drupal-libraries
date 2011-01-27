@@ -2,6 +2,7 @@
 
 Libraries 7.x-1.x, xxxx-xx-xx
 -----------------------------
+#1028744 by tstoeckler: Code clean-up.
 #1023322 by tstoeckler, sun: Fixed libraries shouldn't be loaded multiple times.
 #1024080 by hswong3i, tstoeckler: Fixed installation profile retrieval.
 #995988 by good_man: Wrong default install profile.
