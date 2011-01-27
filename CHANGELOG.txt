@@ -1,9 +1,5 @@
 // $Id$
 
-Libraries x.x-x.x, xxxx-xx-xx
------------------------------
-
-
 Libraries 7.x-1.x, xxxx-xx-xx
 -----------------------------
 #1023322 by tstoeckler, sun: Fixed libraries shouldn't be loaded multiple times.
@@ -30,7 +26,15 @@ by sun: Fixed testbot breaks upon .info file without .module file.
 
 Libraries 6.x-1.x, xxxx-xx-xx
 -----------------------------
+
+
+Libraries 6.x-1.0, 2010-01-27
+-----------------------------
 #496732 by tstoeckler, robphillips: Allow placing libraries in root directory.
+
+
+Libraries 6.x-1.0-ALPHA1, 2009-12-30
+------------------------------------
 #480440 by markus_petrux: Fixed base_path() not applied to default library path.
 #320562 by sun: Added basic functions.
 
