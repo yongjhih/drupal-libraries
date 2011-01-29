@@ -232,7 +232,7 @@ function libraries_info($name = NULL) {
  */
 function libraries_detect($libraries) {
   foreach ($libraries as &$library) {
-    $library = libraries_detect_library($library);
+    libraries_detect_library($library);
   }
   return $libraries;
 }
@@ -244,7 +244,7 @@ function libraries_detect($libraries) {
  *   An associative array describing a single library, as returned from
  *   libraries_info().
  */
-function libraries_detect_library($library) {
+function libraries_detect_library(&$library) {
   $library['installed'] = FALSE;
 
   // Check whether the library exists.
@@ -360,7 +360,8 @@ function libraries_load($name, $variant = NULL) {
   $loaded = &drupal_static(__FUNCTION__, array());
 
   if (!isset($loaded[$name])) {
-    $library = libraries_detect_library(libraries_info($name));
+    $library = libraries_info($name);
+    libraries_detect_library($library);
 
     // If a variant was specified, override the top-level properties with the
     // variant properties.
