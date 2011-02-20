@@ -115,7 +115,7 @@ function hook_libraries_info() {
   // directory, which should contain the entire, original extracted library.
   $libraries['example'] = array(
     // Only used in administrative UI of Libraries API.
-    'title' => 'Example library',
+    'name' => 'Example library',
     'vendor url' => 'http://example.com',
     'download url' => 'http://example.com/download',
     // Optional: If, after extraction, the actual library files are contained in
@@ -219,7 +219,7 @@ function hook_libraries_info() {
   // A very simple library. No changing APIs (hence, no versions), no variants.
   // Expected to be extracted into 'sites/all/libraries/simple'.
   $libraries['simple'] = array(
-    'title' => 'Simple library',
+    'name' => 'Simple library',
     'vendor url' => 'http://example.com/simple',
     'download url' => 'http://example.com/simple',
     'version arguments' => array(
@@ -236,7 +236,7 @@ function hook_libraries_info() {
 
   // A library that (naturally) evolves over time with API changes.
   $libraries['tinymce'] = array(
-    'title' => 'TinyMCE',
+    'name' => 'TinyMCE',
     'vendor url' => 'http://tinymce.moxiecode.com',
     'download url' => 'http://tinymce.moxiecode.com/download.php',
     'path' => 'jscripts/tiny_mce',
