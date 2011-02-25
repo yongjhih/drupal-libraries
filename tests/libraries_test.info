@@ -1,4 +1,3 @@
-; $Id$
 name = Libraries test module
 description = Tests library detection and loading.
 core = 7.x
