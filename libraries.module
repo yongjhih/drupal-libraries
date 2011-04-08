@@ -230,8 +230,9 @@ function libraries_info($name = NULL) {
  * @see libraries_info()
  */
 function libraries_detect($libraries) {
-  foreach ($libraries as &$library) {
+  foreach ($libraries as $name => &$library) {
     libraries_detect_library($library);
+    cache_set($name, $library, 'cache_libraries');
   }
   return $libraries;
 }
@@ -359,8 +360,15 @@ function libraries_load($name, $variant = NULL) {
   $loaded = &drupal_static(__FUNCTION__, array());
 
   if (!isset($loaded[$name])) {
-    $library = libraries_info($name);
-    libraries_detect_library($library);
+    $library = cache_get($name, 'cache_libraries');
+    if ($library) {
+      $library = $library->data;
+    }
+    else {
+      $library = libraries_info($name);
+      libraries_detect_library($library);
+      cache_set($name, $library, 'cache_libraries');
+    }
 
     // If a variant was specified, override the top-level properties with the
     // variant properties.
