@@ -6,6 +6,13 @@
  */
 
 /**
+ * Implements hook_flush_caches().
+ */
+function libraries_flush_caches() {
+  return array('cache_libraries');
+}
+
+/**
  * Gets the path of a library.
  *
  * @param $name
