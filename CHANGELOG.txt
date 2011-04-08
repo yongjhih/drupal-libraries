@@ -1,6 +1,7 @@
 
 Libraries 7.x-2.x, xxxx-xx-xx
 -----------------------------
+#466090 by tstoeckler, sun: Cache library information.
 #1064008 by tstoeckler, bfroehle: Fix outdated API examples in libraries.api.php.
 #1028744 by tstoeckler: Code clean-up.
 #1023322 by tstoeckler, sun: Fixed libraries shouldn't be loaded multiple times.
