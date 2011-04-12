@@ -59,8 +59,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $this->assertEqual($library, $expected, 'Library specified with an .info file found');
 
     // Test missing library.
-    $library = libraries_info('example_missing');
-    libraries_detect_library($library);
+    $library = libraries_detect('example_missing');
     $this->verbose(var_export($library, TRUE));
     $this->assertEqual($library['error'], 'not found', 'Missing library not found.');
     $error_message = t('The %library library could not be found.', array(
@@ -69,8 +68,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $this->assertEqual($library['error message'], $error_message, 'Correct error message for a missing library.');
 
     // Test unknown library version.
-    $library = libraries_info('example_undetected_version');
-    libraries_detect_library($library);
+    $library = libraries_detect('example_undetected_version');
     $this->verbose(var_export($library, TRUE));
     $this->assertEqual($library['error'], 'not detected', 'Undetected version detected as such.');
     $error_message = t('The version of the %library library could not be detected.', array(
@@ -79,8 +77,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $this->assertEqual($library['error message'], $error_message, 'Correct error message for a library with an undetected version.');
 
     // Test unsupported library version.
-    $library = libraries_info('example_unsupported_version');
-    libraries_detect_library($library);
+    $library = libraries_detect('example_unsupported_version');
     $this->verbose(var_export($library, TRUE));
     $this->assertEqual($library['error'], 'not supported', 'Unsupported version detected as such.');
     $error_message = t('The installed version %version of the %library library is not supported.', array(
@@ -90,26 +87,22 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $this->assertEqual($library['error message'], $error_message, 'Correct error message for a library with an unsupported version.');
 
     // Test supported library version.
-    $library = libraries_info('example_supported_version');
-    libraries_detect_library($library);
+    $library = libraries_detect('example_supported_version');
     $this->verbose(var_export($library, TRUE));
     $this->assertEqual($library['installed'], TRUE, 'Supported library version found.');
 
     // Test libraries_get_version().
-    $library = libraries_info('example_default_version_callback');
-    libraries_detect_library($library);
+    $library = libraries_detect('example_default_version_callback');
     $this->verbose(var_export($library, TRUE));
     $this->assertEqual($library['version'], '1', 'Expected version returned by default version callback.');
 
     // Test a multiple-parameter version callback.
-    $library = libraries_info('example_multiple_parameter_version_callback');
-    libraries_detect_library($library);
+    $library = libraries_detect('example_multiple_parameter_version_callback');
     $this->verbose(var_export($library, TRUE));
     $this->assertEqual($library['version'], '1', 'Expected version returned by multiple parameter version callback.');
 
     // Test a top-level files property.
-    $library = libraries_info('example_files');
-    libraries_detect_library($library);
+    $library = libraries_detect('example_files');
     $files = array(
       'js' => array('example_1.js'),
       'css' => array('example_1.css'),
@@ -119,8 +112,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $this->assertEqual($library['files'], $files, 'Top-level files property works.');
 
     // Test version-specific library files.
-    $library = libraries_info('example_versions');
-    libraries_detect_library($library);
+    $library = libraries_detect('example_versions');
     $files = array(
       'js' => array('example_2.js'),
       'css' => array('example_2.css'),
@@ -130,8 +122,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $this->assertEqual($library['files'], $files, 'Version-specific library files found.');
 
     // Test missing variant.
-    $library = libraries_info('example_variant_missing');
-    libraries_detect_library($library);
+    $library = libraries_detect('example_variant_missing');
     $variants = array_keys($library['variants']);
     $this->verbose(var_export($library, TRUE));
     $this->assertEqual($library['variants']['example_variant']['error'], 'not found', 'Missing variant not found');
@@ -142,8 +133,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $this->assertEqual($library['variants']['example_variant']['error message'], $error_message, 'Correct error message for a missing variant.');
 
     // Test existing variant.
-    $library = libraries_info('example_variant');
-    libraries_detect_library($library);
+    $library = libraries_detect('example_variant');
     $this->verbose(var_export($library, TRUE));
     $this->assertEqual($library['variants']['example_variant']['installed'], TRUE, 'Existing variant found.');
 

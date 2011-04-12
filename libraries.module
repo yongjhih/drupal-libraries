@@ -219,7 +219,7 @@ function libraries_info($name = NULL) {
 }
 
 /**
- * Detect libraries and library versions.
+ * Tries to detect a library and its installed version.
  *
  * @todo We need to figure out whether, and if, how we want to retain the
  *   processed information. I.e. either use a static cache here, or make
@@ -231,27 +231,27 @@ function libraries_info($name = NULL) {
  *   supported libraries (possibly those registered by itself, or in a certain
  *   "category") is available... Food for thought.
  *
- * @param $libraries
- *   An array of libraries to detect, as returned from libraries_info().
+ * @param $name
+ *   The machine name of a library to return registered information for.
+ *
+ * @return
+ *   An associative array containing registered information for the library
+ *   specified by $name. In addition to the keys returned by libraries_info()
+ *   libraries contain the following keys:
+ *   - installed: A boolean indicating whether the library is installed. Note
+ *     that not only the top-level library, but also each variant contains this
+ *     key.
+ *   - version: If the version could be detected, the full version string.
+ *   - error: If an error occurred during library detection, one of the
+ *     following error statuses: "not found", "not detected", "not supported".
+ *   - error message: If an error occurred during library detection, a detailed
+ *     error message.
  *
  * @see libraries_info()
  */
-function libraries_detect($libraries) {
-  foreach ($libraries as $name => &$library) {
-    libraries_detect_library($library);
-    cache_set($name, $library, 'cache_libraries');
-  }
-  return $libraries;
-}
+function libraries_detect($name) {
+  $library = libraries_info($name);
 
-/**
- * Tries to detect a library and its installed version.
- *
- * @param $library
- *   An associative array describing a single library, as returned from
- *   libraries_info().
- */
-function libraries_detect_library(&$library) {
   $library['installed'] = FALSE;
 
   // Check whether the library exists.
@@ -263,7 +263,7 @@ function libraries_detect_library(&$library) {
     $library['error message'] = t('The %library library could not be found.', array(
       '%library' => $library['name'],
     ));
-    return;
+    return $library;
   }
 
   // Detect library version, if not hardcoded.
@@ -282,7 +282,7 @@ function libraries_detect_library(&$library) {
       $library['error message'] = t('The version of the %library library could not be detected.', array(
         '%library' => $library['name'],
       ));
-      return;
+      return $library;
     }
   }
 
@@ -301,7 +301,7 @@ function libraries_detect_library(&$library) {
         '%version' => $library['version'],
         '%library' => $library['name'],
       ));
-      return;
+      return $library;
     }
 
     // Apply version specific definitions and overrides.
@@ -372,8 +372,7 @@ function libraries_load($name, $variant = NULL) {
       $library = $library->data;
     }
     else {
-      $library = libraries_info($name);
-      libraries_detect_library($library);
+      $library = libraries_detect($name);
       cache_set($name, $library, 'cache_libraries');
     }
 
