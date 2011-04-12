@@ -1,6 +1,7 @@
 
 Libraries 7.x-2.x, xxxx-xx-xx
 -----------------------------
+#466090 by tstoeckler: Add update function.
 #466090 by tstoeckler: Allow cache to be flushed.
 #466090 by tstoeckler, sun: Cache library information.
 #1064008 by tstoeckler, bfroehle: Fix outdated API examples in libraries.api.php.
