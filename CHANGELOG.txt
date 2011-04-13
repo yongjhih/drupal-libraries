@@ -1,6 +1,7 @@
 
 Libraries 7.x-2.x, xxxx-xx-xx
 -----------------------------
+#1125904 by tstoeckler, boombatower: Fix drush libraries-list.
 #1050076 by tstoeckler: Re-utilize libraries_detect() and remove libraries_detect_library().
 #466090 by tstoeckler: Add update function.
 #466090 by tstoeckler: Allow cache to be flushed.
