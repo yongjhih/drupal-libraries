@@ -259,11 +259,12 @@ function libraries_info($name = NULL) {
         'variants' => array(),
         'versions' => array(),
         'integration files' => array(),
-        'callbacks' => array(
-          'prepare' => array(),
-          'detect' => array(),
-          'load' => array(),
-        ),
+        'callbacks' => array(),
+      );
+      $properties['callbacks'] += array(
+        'prepare' => array(),
+        'detect' => array(),
+        'load' => array(),
       );
     }
 
