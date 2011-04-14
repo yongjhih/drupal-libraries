@@ -151,6 +151,60 @@ function libraries_scan_info_files() {
 
   return $files;
 }
+
+/**
+ * Invokes library callbacks.
+ *
+ * @param $group
+ *   A string containing the group of callbacks that is to be applied. Should be
+ *   either 'prepare', 'detect', or 'load'.
+ * @param $library
+ *   An array of library information, passed by reference.
+ */
+function libraries_invoke($group, &$library) {
+  foreach ($library['callbacks'][$group] as $callback) {
+    libraries_traverse_library($library, $callback);
+  }
+}
+
+/**
+ * Helper function to apply a callback to all parts of a library.
+ *
+ * Because library declarations can include variants and versions, and those
+ * version declarations can in turn include variants, modifying e.g. the 'files'
+ * property everywhere it is declared can be quite cumbersome, in which case
+ * this helper function is useful.
+ *
+ * @param $library
+ *   An array of library information, passed by reference.
+ * @param $callback
+ *   A string containing the callback to apply to all parts of a library.
+ */
+function libraries_traverse_library(&$library, $callback) {
+  // Always apply the callback to the top-level library.
+  $callback($library, NULL, NULL);
+
+  // Apply the callback to versions.
+  if (isset($library['versions'])) {
+    foreach ($library['versions'] as $version_string => &$version) {
+      $callback($version, $version_string, NULL);
+      // Versions can include variants as well.
+      if (isset($version['variants'])) {
+        foreach ($version['variants'] as $version_variant_name => &$version_variant) {
+          $callback($version_variant, $version_string, $version_variant_name);
+        }
+      }
+    }
+  }
+
+  // Apply the callback to variants.
+  if (isset($library['variants'])) {
+    foreach ($library['variants'] as $variant_name => &$variant) {
+      $callback($variant, NULL, $variant_name);
+    }
+  }
+}
+
 /**
  * Returns information about registered libraries.
  *
@@ -205,11 +259,21 @@ function libraries_info($name = NULL) {
         'variants' => array(),
         'versions' => array(),
         'integration files' => array(),
+        'callbacks' => array(
+          'prepare' => array(),
+          'detect' => array(),
+          'load' => array(),
+        ),
       );
     }
 
     // Allow modules to alter the registered libraries.
     drupal_alter('libraries_info', $libraries);
+
+    // Invoke callbacks in the 'prepare' group.
+    foreach ($libraries as &$properties) {
+      libraries_invoke('prepare', $properties);
+    }
   }
 
   if (isset($name)) {
@@ -340,6 +404,10 @@ function libraries_detect($name) {
 
   // If we end up here, the library should be usable.
   $library['installed'] = TRUE;
+
+  // Invoke callbacks in the 'detect' group.
+  libraries_invoke('detect', $library);
+
   return $library;
 }
 
@@ -392,6 +460,9 @@ function libraries_load($name, $variant = NULL) {
     // If the library (variant) is installed, load it.
     $library['loaded'] = FALSE;
     if ($library['installed']) {
+      // Invoke callbacks in the 'load' group.
+      libraries_invoke('load', $library);
+
       $library['loaded'] = libraries_load_files($library);
     }
     $loaded[$name] = $library;

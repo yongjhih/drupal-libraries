@@ -137,6 +137,81 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $this->verbose(var_export($library, TRUE));
     $this->assertEqual($library['variants']['example_variant']['installed'], TRUE, 'Existing variant found.');
 
+    // Test the applying of callbacks.
+    $expected = array_merge(libraries_info('example_empty'), array(
+      'machine name' => 'example_callback',
+      'name' => 'Example callback',
+      'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
+      'version' => '1',
+      'versions' => array(
+        '1' => array(
+          'variants' => array(
+            'example_variant' => array(
+              'prepare callback' => 'not applied',
+              'detect callback' => 'not applied',
+              'load callback' => 'not applied',
+            ),
+          ),
+          'prepare callback' => 'not applied',
+          'detect callback' => 'not applied',
+          'load callback' => 'not applied',
+        ),
+      ),
+      'variants' => array(
+        'example_variant' => array(
+          'prepare callback' => 'not applied',
+          'detect callback' => 'not applied',
+          'load callback' => 'not applied',
+        ),
+      ),
+      'callbacks' => array(
+        'prepare' => array('_libraries_test_prepare_callback'),
+        'detect' => array('_libraries_test_detect_callback'),
+        'load' => array('_libraries_test_load_callback'),
+      ),
+      'prepare callback' => 'not applied',
+      'detect callback' => 'not applied',
+      'load callback' => 'not applied',
+    ));
+    // Test a callback in the 'prepare' phase.
+    $expected['prepare callback'] = 'applied (top-level)';
+    $expected['versions']['1']['prepare callback'] = 'applied (version 1)';
+    $expected['versions']['1']['variants']['example_variant']['prepare callback'] = 'applied (version 1, variant example_variant)';
+    $expected['variants']['example_variant']['prepare callback'] = 'applied (variant example_variant)';
+    $library = libraries_info('example_callback');
+    $this->verbose(var_export($expected, TRUE));
+    $this->verbose(var_export($library, TRUE));
+    $this->assertEqual($library, $expected, 'Prepare callback was applied correctly.');
+    // Test a callback in the 'detect' phase.
+    unset($expected['versions']);
+    $expected['installed'] = TRUE;
+    $expected['prepare callback'] = 'applied (version 1)';
+    $expected['variants']['example_variant']['installed'] = TRUE;
+    $expected['variants']['example_variant']['prepare callback'] = 'applied (version 1, variant example_variant)';
+    $expected['detect callback'] = 'applied (top-level)';
+    $expected['variants']['example_variant']['detect callback'] = 'applied (variant example_variant)';
+    $library = libraries_detect('example_callback');
+    $this->verbose(var_export($expected, TRUE));
+    $this->verbose(var_export($library, TRUE));
+    $this->assertEqual($library, $expected, 'Detect callback was applied correctly.');
+
+    // Test a callback in the 'load' phase.
+    unset($expected['variants']);
+    $expected['loaded'] = 0;
+    $expected['load callback'] = 'applied (top-level)';
+    $library = libraries_load('example_callback');
+    $this->verbose(var_export($expected, TRUE));
+    $this->verbose(var_export($library, TRUE));
+    $this->assertEqual($library, $expected, 'Load callback was applied correctly.');
+    // This is not recommended usually and is only used for testing purposes.
+    drupal_static_reset('libraries_load');
+    $expected['prepare callback'] = 'applied (version 1, variant example_variant)';
+    $expected['detect callback'] = 'applied (variant example_variant)';
+    $library = libraries_load('example_callback', 'example_variant');
+    $this->verbose(var_export($expected, TRUE));
+    $this->verbose(var_export($library, TRUE));
+    $this->assertEqual($library, $expected, 'Load callback was applied correctly to a variant.');
+
     // Test loading of a simple library with a top-level files property.
     $this->drupalGet('libraries_test/files');
     $this->assertLibraryFiles('example_1', 'File loading');
