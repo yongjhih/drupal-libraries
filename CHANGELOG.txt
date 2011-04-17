@@ -1,6 +1,7 @@
 
 Libraries 7.x-2.x, xxxx-xx-xx
 -----------------------------
+#961476 by tstoeckler: Changed libraries_get_path() to return FALSE by default.
 #958162 by tstoeckler, sun, good_man: Allow to apply callbacks to libraries.
 #1125904 by tstoeckler, boombatower: Fix drush libraries-list.
 #1050076 by tstoeckler: Re-utilize libraries_detect() and remove libraries_detect_library().

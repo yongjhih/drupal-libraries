@@ -29,6 +29,9 @@ class LibrariesTestCase extends DrupalWebTestCase {
    * @todo Better method name(s); split into detection/loading/overloading/etc.
    */
   function testLibraries() {
+    // Test libraries_get_path().
+    $this->assertEqual(libraries_get_path('example'), FALSE, 'libraries_get_path() returns FALSE for a missing library.');
+
     // Test that library information is found correctly.
     $expected = array_merge(libraries_info('example_empty'), array(
       'machine name' => 'example_files',

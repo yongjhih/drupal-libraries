@@ -21,7 +21,7 @@ function libraries_flush_caches() {
  *   Whether to prefix the resulting path with base_path().
  *
  * @return
- *   The path to the specified library.
+ *   The path to the specified library or FALSE if the library wasn't found.
  *
  * @ingroup libraries
  */
@@ -34,9 +34,7 @@ function libraries_get_path($name, $base_path = FALSE) {
 
   $path = ($base_path ? base_path() : '');
   if (!isset($libraries[$name])) {
-    // Most often, external libraries can be shared across multiple sites, so
-    // we return sites/all/libraries as the default path.
-    $path .= 'sites/all/libraries/' . $name;
+    return FALSE;
   }
   else {
     $path .= $libraries[$name];
@@ -323,7 +321,7 @@ function libraries_detect($name) {
   if (!isset($library['library path'])) {
     $library['library path'] = libraries_get_path($library['machine name']);
   }
-  if (!file_exists($library['library path'])) {
+  if ($library['library path'] === FALSE || !file_exists($library['library path'])) {
     $library['error'] = 'not found';
     $library['error message'] = t('The %library library could not be found.', array(
       '%library' => $library['name'],
