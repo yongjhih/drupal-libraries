@@ -244,26 +244,7 @@ function libraries_info($name = NULL) {
 
     // Provide defaults.
     foreach ($libraries as $machine_name => &$properties) {
-      $properties += array(
-        'machine name' => $machine_name,
-        'name' => $machine_name,
-        'vendor url' => '',
-        'download url' => '',
-        'path' => '',
-        'library path' => NULL,
-        'version callback' => 'libraries_get_version',
-        'version arguments' => array(),
-        'files' => array(),
-        'variants' => array(),
-        'versions' => array(),
-        'integration files' => array(),
-        'callbacks' => array(),
-      );
-      $properties['callbacks'] += array(
-        'prepare' => array(),
-        'detect' => array(),
-        'load' => array(),
-      );
+      libraries_info_defaults($properties, $machine_name);
     }
 
     // Allow modules to alter the registered libraries.
@@ -279,6 +260,38 @@ function libraries_info($name = NULL) {
     return !empty($libraries[$name]) ? $libraries[$name] : FALSE;
   }
   return $libraries;
+}
+
+/**
+ * Applies default properties to a library definition.
+ *
+ * @library
+ *   An array of library information, passed by reference.
+ * @name
+ *   The machine name of the passed-in library.
+ */
+function libraries_info_defaults(&$library, $name) {
+  $library += array(
+    'machine name' => $name,
+    'name' => $name,
+    'vendor url' => '',
+    'download url' => '',
+    'path' => '',
+    'library path' => NULL,
+    'version callback' => 'libraries_get_version',
+    'version arguments' => array(),
+    'files' => array(),
+    'variants' => array(),
+    'versions' => array(),
+    'integration files' => array(),
+    'callbacks' => array(),
+  );
+  $library['callbacks'] += array(
+    'prepare' => array(),
+    'detect' => array(),
+    'load' => array(),
+  );
+  return $library;
 }
 
 /**

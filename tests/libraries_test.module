@@ -240,10 +240,6 @@ function libraries_test_libraries_info() {
     'load callback' => 'not applied',
   );
 
-  // This library is used together with libraries_info() to be populated with
-  // the defaults.
-  $libraries['example_empty'] = array();
-
   return $libraries;
 }
 

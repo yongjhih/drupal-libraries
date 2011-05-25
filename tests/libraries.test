@@ -33,8 +33,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $this->assertEqual(libraries_get_path('example'), FALSE, 'libraries_get_path() returns FALSE for a missing library.');
 
     // Test that library information is found correctly.
-    $expected = array_merge(libraries_info('example_empty'), array(
-      'machine name' => 'example_files',
+    $expected = array(
       'name' => 'Example files',
       'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
       'version' => '1',
@@ -43,27 +42,28 @@ class LibrariesTestCase extends DrupalWebTestCase {
         'css' => array('example_1.css'),
         'php' => array('example_1.php'),
       ),
-    ));
+      'module' => 'libraries_test',
+    );
+    libraries_info_defaults($expected, 'example_files');
     $library = libraries_info('example_files');
-    $this->verbose(var_export($expected, TRUE));
-    $this->verbose(var_export($library, TRUE));
+    $this->verbose('Expected:<pre>' . var_export($expected, TRUE) . '</pre>');
+    $this->verbose('Actual:<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library, $expected, 'Library information is correctly gathered.');
 
     // Test a library specified with an .info file gets detected.
-    $expected = array_merge(libraries_info('example_empty'), array(
-      'machine name' => 'example_info_file',
+    $expected = array(
       'name' => 'Example info file',
       'info file' => drupal_get_path('module', 'libraries_test') . '/example/example_info_file.libraries.info',
-    ));
-    unset($expected['module']);
+    );
+    libraries_info_defaults($expected, 'example_info_file');
     $library = libraries_info('example_info_file');
-    $this->verbose(var_export($expected, TRUE));
-    $this->verbose(var_export($library, TRUE));
+    $this->verbose('Expected:<pre>' . var_export($expected, TRUE) . '</pre>');
+    $this->verbose('Actual:<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library, $expected, 'Library specified with an .info file found');
 
     // Test missing library.
     $library = libraries_detect('example_missing');
-    $this->verbose(var_export($library, TRUE));
+    $this->verbose('<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library['error'], 'not found', 'Missing library not found.');
     $error_message = t('The %library library could not be found.', array(
       '%library' => $library['name'],
@@ -72,7 +72,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
 
     // Test unknown library version.
     $library = libraries_detect('example_undetected_version');
-    $this->verbose(var_export($library, TRUE));
+    $this->verbose('<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library['error'], 'not detected', 'Undetected version detected as such.');
     $error_message = t('The version of the %library library could not be detected.', array(
       '%library' => $library['name'],
@@ -81,7 +81,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
 
     // Test unsupported library version.
     $library = libraries_detect('example_unsupported_version');
-    $this->verbose(var_export($library, TRUE));
+    $this->verbose('<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library['error'], 'not supported', 'Unsupported version detected as such.');
     $error_message = t('The installed version %version of the %library library is not supported.', array(
       '%version' => $library['version'],
@@ -91,17 +91,17 @@ class LibrariesTestCase extends DrupalWebTestCase {
 
     // Test supported library version.
     $library = libraries_detect('example_supported_version');
-    $this->verbose(var_export($library, TRUE));
+    $this->verbose('<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library['installed'], TRUE, 'Supported library version found.');
 
     // Test libraries_get_version().
     $library = libraries_detect('example_default_version_callback');
-    $this->verbose(var_export($library, TRUE));
+    $this->verbose('<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library['version'], '1', 'Expected version returned by default version callback.');
 
     // Test a multiple-parameter version callback.
     $library = libraries_detect('example_multiple_parameter_version_callback');
-    $this->verbose(var_export($library, TRUE));
+    $this->verbose('<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library['version'], '1', 'Expected version returned by multiple parameter version callback.');
 
     // Test a top-level files property.
@@ -111,7 +111,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
       'css' => array('example_1.css'),
       'php' => array('example_1.php'),
     );
-    $this->verbose(var_export($library, TRUE));
+    $this->verbose('<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library['files'], $files, 'Top-level files property works.');
 
     // Test version-specific library files.
@@ -121,28 +121,26 @@ class LibrariesTestCase extends DrupalWebTestCase {
       'css' => array('example_2.css'),
       'php' => array('example_2.php'),
     );
-    $this->verbose(var_export($library, TRUE));
+    $this->verbose('<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library['files'], $files, 'Version-specific library files found.');
 
     // Test missing variant.
     $library = libraries_detect('example_variant_missing');
-    $variants = array_keys($library['variants']);
-    $this->verbose(var_export($library, TRUE));
+    $this->verbose('<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library['variants']['example_variant']['error'], 'not found', 'Missing variant not found');
     $error_message = t('The %variant variant of the %library library could not be found.', array(
-      '%variant' => $variants[0],
-      '%library' => $library['name'],
+      '%variant' => 'example_variant',
+      '%library' => 'Example variant missing',
     ));
     $this->assertEqual($library['variants']['example_variant']['error message'], $error_message, 'Correct error message for a missing variant.');
 
     // Test existing variant.
     $library = libraries_detect('example_variant');
-    $this->verbose(var_export($library, TRUE));
+    $this->verbose('<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library['variants']['example_variant']['installed'], TRUE, 'Existing variant found.');
 
     // Test the applying of callbacks.
-    $expected = array_merge(libraries_info('example_empty'), array(
-      'machine name' => 'example_callback',
+    $expected = array(
       'name' => 'Example callback',
       'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
       'version' => '1',
@@ -175,44 +173,56 @@ class LibrariesTestCase extends DrupalWebTestCase {
       'prepare callback' => 'not applied',
       'detect callback' => 'not applied',
       'load callback' => 'not applied',
-    ));
+      'module' => 'libraries_test',
+    );
+    libraries_info_defaults($expected, 'example_callback');
+
     // Test a callback in the 'prepare' phase.
     $expected['prepare callback'] = 'applied (top-level)';
     $expected['versions']['1']['prepare callback'] = 'applied (version 1)';
     $expected['versions']['1']['variants']['example_variant']['prepare callback'] = 'applied (version 1, variant example_variant)';
     $expected['variants']['example_variant']['prepare callback'] = 'applied (variant example_variant)';
     $library = libraries_info('example_callback');
-    $this->verbose(var_export($expected, TRUE));
-    $this->verbose(var_export($library, TRUE));
+    $this->verbose('Expected:<pre>' . var_export($expected, TRUE) . '</pre>');
+    $this->verbose('Actual:<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library, $expected, 'Prepare callback was applied correctly.');
+
     // Test a callback in the 'detect' phase.
+    // Successfully detected libraries should only contain version information
+    // for the detected version and thus, be marked as installed.
     unset($expected['versions']);
     $expected['installed'] = TRUE;
+    // Additionally, version-specific properties of the detected version are
+    // supposed to override the corresponding top-level properties.
     $expected['prepare callback'] = 'applied (version 1)';
     $expected['variants']['example_variant']['installed'] = TRUE;
     $expected['variants']['example_variant']['prepare callback'] = 'applied (version 1, variant example_variant)';
     $expected['detect callback'] = 'applied (top-level)';
     $expected['variants']['example_variant']['detect callback'] = 'applied (variant example_variant)';
     $library = libraries_detect('example_callback');
-    $this->verbose(var_export($expected, TRUE));
-    $this->verbose(var_export($library, TRUE));
+    $this->verbose('Expected:<pre>' . var_export($expected, TRUE) . '</pre>');
+    $this->verbose('Actual:<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library, $expected, 'Detect callback was applied correctly.');
 
     // Test a callback in the 'load' phase.
+    // Successfully loaded libraries should only contain information about the
+    // already loaded variant.
     unset($expected['variants']);
     $expected['loaded'] = 0;
     $expected['load callback'] = 'applied (top-level)';
     $library = libraries_load('example_callback');
-    $this->verbose(var_export($expected, TRUE));
-    $this->verbose(var_export($library, TRUE));
+    $this->verbose('Expected:<pre>' . var_export($expected, TRUE) . '</pre>');
+    $this->verbose('Actual:<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library, $expected, 'Load callback was applied correctly.');
     // This is not recommended usually and is only used for testing purposes.
     drupal_static_reset('libraries_load');
+    // Successfully loaded library variants are supposed to contain the specific
+    // variant information only.
     $expected['prepare callback'] = 'applied (version 1, variant example_variant)';
     $expected['detect callback'] = 'applied (variant example_variant)';
     $library = libraries_load('example_callback', 'example_variant');
-    $this->verbose(var_export($expected, TRUE));
-    $this->verbose(var_export($library, TRUE));
+    $this->verbose('Expected:<pre>' . var_export($expected, TRUE) . '</pre>');
+    $this->verbose('Actual:<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library, $expected, 'Load callback was applied correctly to a variant.');
 
     // Test loading of a simple library with a top-level files property.
