@@ -148,57 +148,66 @@ class LibrariesTestCase extends DrupalWebTestCase {
         '1' => array(
           'variants' => array(
             'example_variant' => array(
-              'prepare callback' => 'not applied',
-              'detect callback' => 'not applied',
+              'info callback' => 'not applied',
+              'pre-detect callback' => 'not applied',
+              'post-detect callback' => 'not applied',
               'load callback' => 'not applied',
             ),
           ),
-          'prepare callback' => 'not applied',
-          'detect callback' => 'not applied',
+          'info callback' => 'not applied',
+          'pre-detect callback' => 'not applied',
+          'post-detect callback' => 'not applied',
           'load callback' => 'not applied',
         ),
       ),
       'variants' => array(
         'example_variant' => array(
-          'prepare callback' => 'not applied',
-          'detect callback' => 'not applied',
+          'info callback' => 'not applied',
+          'pre-detect callback' => 'not applied',
+          'post-detect callback' => 'not applied',
           'load callback' => 'not applied',
         ),
       ),
       'callbacks' => array(
-        'prepare' => array('_libraries_test_prepare_callback'),
-        'detect' => array('_libraries_test_detect_callback'),
+        'info' => array('_libraries_test_info_callback'),
+        'pre-detect' => array('_libraries_test_pre_detect_callback'),
+        'post-detect' => array('_libraries_test_post_detect_callback'),
         'load' => array('_libraries_test_load_callback'),
       ),
-      'prepare callback' => 'not applied',
-      'detect callback' => 'not applied',
+      'info callback' => 'not applied',
+      'pre-detect callback' => 'not applied',
+      'post-detect callback' => 'not applied',
       'load callback' => 'not applied',
       'module' => 'libraries_test',
     );
     libraries_info_defaults($expected, 'example_callback');
 
-    // Test a callback in the 'prepare' phase.
-    $expected['prepare callback'] = 'applied (top-level)';
-    $expected['versions']['1']['prepare callback'] = 'applied (version 1)';
-    $expected['versions']['1']['variants']['example_variant']['prepare callback'] = 'applied (version 1, variant example_variant)';
-    $expected['variants']['example_variant']['prepare callback'] = 'applied (variant example_variant)';
+    // Test a callback in the 'info' group.
+    $expected['info callback'] = 'applied (top-level)';
+    $expected['versions']['1']['info callback'] = 'applied (version 1)';
+    $expected['versions']['1']['variants']['example_variant']['info callback'] = 'applied (version 1, variant example_variant)';
+    $expected['variants']['example_variant']['info callback'] = 'applied (variant example_variant)';
     $library = libraries_info('example_callback');
     $this->verbose('Expected:<pre>' . var_export($expected, TRUE) . '</pre>');
     $this->verbose('Actual:<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library, $expected, 'Prepare callback was applied correctly.');
 
-    // Test a callback in the 'detect' phase.
+    // Test a callback in the 'pre-detect' and 'post-detect' phase.
     // Successfully detected libraries should only contain version information
     // for the detected version and thus, be marked as installed.
     unset($expected['versions']);
     $expected['installed'] = TRUE;
     // Additionally, version-specific properties of the detected version are
     // supposed to override the corresponding top-level properties.
-    $expected['prepare callback'] = 'applied (version 1)';
+    $expected['info callback'] = 'applied (version 1)';
     $expected['variants']['example_variant']['installed'] = TRUE;
-    $expected['variants']['example_variant']['prepare callback'] = 'applied (version 1, variant example_variant)';
-    $expected['detect callback'] = 'applied (top-level)';
-    $expected['variants']['example_variant']['detect callback'] = 'applied (variant example_variant)';
+    $expected['variants']['example_variant']['info callback'] = 'applied (version 1, variant example_variant)';
+    // Version-overloading takes place after the 'pre-detect' callbacks have
+    // been applied.
+    $expected['pre-detect callback'] = 'applied (version 1)';
+    $expected['post-detect callback'] = 'applied (top-level)';
+    $expected['variants']['example_variant']['pre-detect callback'] = 'applied (version 1, variant example_variant)';
+    $expected['variants']['example_variant']['post-detect callback'] = 'applied (variant example_variant)';
     $library = libraries_detect('example_callback');
     $this->verbose('Expected:<pre>' . var_export($expected, TRUE) . '</pre>');
     $this->verbose('Actual:<pre>' . var_export($library, TRUE) . '</pre>');
@@ -218,8 +227,9 @@ class LibrariesTestCase extends DrupalWebTestCase {
     drupal_static_reset('libraries_load');
     // Successfully loaded library variants are supposed to contain the specific
     // variant information only.
-    $expected['prepare callback'] = 'applied (version 1, variant example_variant)';
-    $expected['detect callback'] = 'applied (variant example_variant)';
+    $expected['info callback'] = 'applied (version 1, variant example_variant)';
+    $expected['pre-detect callback'] = 'applied (version 1, variant example_variant)';
+    $expected['post-detect callback'] = 'applied (variant example_variant)';
     $library = libraries_load('example_callback', 'example_variant');
     $this->verbose('Expected:<pre>' . var_export($expected, TRUE) . '</pre>');
     $this->verbose('Actual:<pre>' . var_export($library, TRUE) . '</pre>');

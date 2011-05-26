@@ -210,33 +210,38 @@ function libraries_test_libraries_info() {
         'variants' => array(
           'example_variant' => array(
             // These keys are for testing purposes only.
-            'prepare callback' => 'not applied',
-            'detect callback' => 'not applied',
+            'info callback' => 'not applied',
+            'pre-detect callback' => 'not applied',
+            'post-detect callback' => 'not applied',
             'load callback' => 'not applied',
           ),
         ),
         // These keys are for testing purposes only.
-        'prepare callback' => 'not applied',
-        'detect callback' => 'not applied',
+        'info callback' => 'not applied',
+        'pre-detect callback' => 'not applied',
+        'post-detect callback' => 'not applied',
         'load callback' => 'not applied',
       ),
     ),
     'variants' => array(
       'example_variant' => array(
         // These keys are for testing purposes only.
-        'prepare callback' => 'not applied',
-        'detect callback' => 'not applied',
+        'info callback' => 'not applied',
+        'pre-detect callback' => 'not applied',
+        'post-detect callback' => 'not applied',
         'load callback' => 'not applied',
       ),
     ),
     'callbacks' => array(
-      'prepare' => array('_libraries_test_prepare_callback'),
-      'detect' => array('_libraries_test_detect_callback'),
+      'info' => array('_libraries_test_info_callback'),
+      'pre-detect' => array('_libraries_test_pre_detect_callback'),
+      'post-detect' => array('_libraries_test_post_detect_callback'),
       'load' => array('_libraries_test_load_callback'),
     ),
     // These keys are for testing purposes only.
-    'prepare callback' => 'not applied',
-    'detect callback' => 'not applied',
+    'info callback' => 'not applied',
+    'pre-detect callback' => 'not applied',
+    'post-detect callback' => 'not applied',
     'load callback' => 'not applied',
   );
 
@@ -322,61 +327,42 @@ function _libraries_test_return_installed($library, $name, $installed) {
 }
 
 /**
- * Sets the 'prepare callback' key.
+ * Sets the 'info callback' key.
  *
- * This function is used as a test callback for the 'prepare' callback group.
- *
- * @param $library
- *   An array of library information, which may be version- or variant-specific.
- *   Passed by reference.
- * @param $version
- *   The version the library information passed in $library belongs to, or NULL
- *   if the passed library information is not version-specific.
- * @param $variant
- *   The variant the library information passed in $library belongs to, or NULL
- *   if the passed library information is not variant-specific.
+ * This function is used as a test callback for the 'info' callback group.
  *
  * @see _libraries_test_callback()
  */
-function _libraries_test_prepare_callback(&$library, $version, $variant) {
-  _libraries_test_callback($library, $version, $variant, 'prepare');
+function _libraries_test_info_callback(&$library, $version, $variant) {
+  _libraries_test_callback($library, $version, $variant, 'info');
 }
 
 /**
- * Sets the 'detect callback' key.
+ * Sets the 'pre-detect callback' key.
  *
- * This function is used as a test callback for the 'detect' callback group.
- *
- * @param $library
- *   An array of library information, which may be version- or variant-specific.
- *   Passed by reference.
- * @param $version
- *   The version the library information passed in $library belongs to, or NULL
- *   if the passed library information is not version-specific.
- * @param $variant
- *   The variant the library information passed in $library belongs to, or NULL
- *   if the passed library information is not variant-specific.
+ * This function is used as a test callback for the 'pre-detect' callback group.
  *
  * @see _libraries_test_callback()
  */
-function _libraries_test_detect_callback(&$library, $version, $variant) {
-  _libraries_test_callback($library, $version, $variant, 'detect');
+function _libraries_test_pre_detect_callback(&$library, $version, $variant) {
+  _libraries_test_callback($library, $version, $variant, 'pre-detect');
+}
+
+/**
+ * Sets the 'post-detect callback' key.
+ *
+ * This function is used as a test callback for the 'post-detect callback group.
+ *
+ * @see _libraries_test_callback()
+ */
+function _libraries_test_post_detect_callback(&$library, $version, $variant) {
+  _libraries_test_callback($library, $version, $variant, 'post-detect');
 }
 
 /**
  * Sets the 'load callback' key.
  *
  * This function is used as a test callback for the 'load' callback group.
- *
- * @param $library
- *   An array of library information, which may be version- or variant-specific.
- *   Passed by reference.
- * @param $version
- *   The version the library information passed in $library belongs to, or NULL
- *   if the passed library information is not version-specific.
- * @param $variant
- *   The variant the library information passed in $library belongs to, or NULL
- *   if the passed library information is not variant-specific.
  *
  * @see _libraries_test_callback()
  */

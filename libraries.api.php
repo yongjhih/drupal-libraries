@@ -118,11 +118,14 @@
  *     - $variant: If the $library array belongs to a certain variant (see
  *       above), a string containing the variant name. NULL, otherwise.
  *     Valid callback groups are:
- *     - prepare: Callbacks registered in this group are applied as soon as the
- *       library information has been retrieved via hook_libraries_info() or
- *       info files.
- *     - detect: Callbacks registered in this group are applied as soon as
- *       library detection has been completed. At this point the library
+ *     - info: Callbacks registered in this group are applied after the library
+ *       information has been retrieved via hook_libraries_info() or info files.
+ *     - pre-detect: Callbacks registered in this group are applied after the
+ *       library path has been determined and before the version callback is
+ *       invoked. At this point the following additional information is available:
+ *       - $library['library path']: The path on the file system to the library.
+ *     - post-detect: Callbacks registered in this group are applied after the
+ *       library has been successfully detected. At this point the library
  *       contains the version-specific information, if specified, and following
  *       additional information is available:
  *       - $library['installed']: A boolean indicating whether the library is

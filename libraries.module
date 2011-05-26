@@ -155,7 +155,7 @@ function libraries_scan_info_files() {
  *
  * @param $group
  *   A string containing the group of callbacks that is to be applied. Should be
- *   either 'prepare', 'detect', or 'load'.
+ *   either 'info', 'pre-detect', 'post-detect', or 'load'.
  * @param $library
  *   An array of library information, passed by reference.
  */
@@ -250,9 +250,9 @@ function libraries_info($name = NULL) {
     // Allow modules to alter the registered libraries.
     drupal_alter('libraries_info', $libraries);
 
-    // Invoke callbacks in the 'prepare' group.
+    // Invoke callbacks in the 'info' group.
     foreach ($libraries as &$properties) {
-      libraries_invoke('prepare', $properties);
+      libraries_invoke('info', $properties);
     }
   }
 
@@ -287,8 +287,9 @@ function libraries_info_defaults(&$library, $name) {
     'callbacks' => array(),
   );
   $library['callbacks'] += array(
-    'prepare' => array(),
-    'detect' => array(),
+    'info' => array(),
+    'pre-detect' => array(),
+    'post-detect' => array(),
     'load' => array(),
   );
   return $library;
@@ -341,6 +342,9 @@ function libraries_detect($name) {
     ));
     return $library;
   }
+
+  // Invoke callbacks in the 'pre-detect' group.
+  libraries_invoke('pre-detect', $library);
 
   // Detect library version, if not hardcoded.
   if (!isset($library['version'])) {
@@ -417,8 +421,8 @@ function libraries_detect($name) {
   // If we end up here, the library should be usable.
   $library['installed'] = TRUE;
 
-  // Invoke callbacks in the 'detect' group.
-  libraries_invoke('detect', $library);
+  // Invoke callbacks in the 'post-detect' group.
+  libraries_invoke('post-detect', $library);
 
   return $library;
 }
