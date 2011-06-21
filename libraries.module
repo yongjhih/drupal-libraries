@@ -204,6 +204,64 @@ function libraries_traverse_library(&$library, $callback) {
 }
 
 /**
+* Helper callback to make 'files' property of libraries consistent.
+*
+* This turns libraries' file information declared as e.g.
+* @code
+* $library['files']['js'] = array('example_1.js', 'example_2.js');
+* @endcode
+* into
+* @code
+* $library['files']['js'] = array(
+*   'example_1.js' => array(),
+*   'example_2.js' => array(),
+* );
+* @endcode
+* It does the same for the 'integration files' property.
+*
+* @param $library
+*   An associative array of library information or a part of it, passed by
+*   reference.
+* @param $version
+*   If the library information belongs to a specific version, the version
+*   string. NULL otherwise.
+* @param $variant
+*   If the library information belongs to a specific variant, the variant name.
+*   NULL otherwise.
+*
+* @see libraries_info()
+* @see libraries_invoke()
+*/
+function libraries_prepare_files(&$library, $version = NULL, $variant = NULL) {
+  // Both the 'files' property and the 'integration files' property contain file
+  // declarations, and we want to make both consistent.
+  $file_types = array();
+  if (isset($library['files'])) {
+    $file_types[] = &$library['files'];
+  }
+  if (isset($library['integration files'])) {
+    // Integration files are additionally keyed by module.
+    foreach ($library['integration files'] as &$integration_files) {
+      $file_types[] = &$integration_files;
+    }
+  }
+  foreach ($file_types as &$files) {
+    // Go through all supported types of files.
+    foreach (array('js', 'css', 'php') as $type) {
+      if (isset($files[$type])) {
+        foreach ($files[$type] as $key => $value) {
+          // Unset numeric keys and turn the respective values into keys.
+          if (is_numeric($key)) {
+            $files[$type][$value] = array();
+            unset($files[$type][$key]);
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
  * Returns information about registered libraries.
  *
  * The returned information is unprocessed, i.e. as registered by modules.
@@ -292,6 +350,10 @@ function libraries_info_defaults(&$library, $name) {
     'post-detect' => array(),
     'load' => array(),
   );
+
+  // Add our own callbacks before any others.
+  $library['callbacks']['info'] = array_merge(array('libraries_prepare_files'), $library['callbacks']['info']);
+
   return $library;
 }
 
@@ -548,7 +610,7 @@ function libraries_load_files($library) {
 
   // Load PHP files.
   if (!empty($library['files']['php'])) {
-    foreach ($library['files']['php'] as $file) {
+    foreach ($library['files']['php'] as $file => $array) {
       $file_path = DRUPAL_ROOT . '/' . $path . '/' . $file;
       if (file_exists($file_path)) {
         require_once $file_path;

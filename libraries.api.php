@@ -114,9 +114,11 @@
  *       library with a certain part of the libraries array passed as $library
  *       each time.
  *     - $version: If the $library array belongs to a certain version (see
- *       above), a string containing the version. NULL, otherwise.
+ *       above), a string containing the version. This argument may be empty, so
+ *       NULL should be specified as the default value.
  *     - $variant: If the $library array belongs to a certain variant (see
- *       above), a string containing the variant name. NULL, otherwise.
+ *       above), a string containing the variant name. This argument may be
+ *       empty, so NULL should be specified as the default value.
  *     Valid callback groups are:
  *     - info: Callbacks registered in this group are applied after the library
  *       information has been retrieved via hook_libraries_info() or info files.

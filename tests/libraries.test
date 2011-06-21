@@ -32,15 +32,33 @@ class LibrariesTestCase extends DrupalWebTestCase {
     // Test libraries_get_path().
     $this->assertEqual(libraries_get_path('example'), FALSE, 'libraries_get_path() returns FALSE for a missing library.');
 
+    // Test libraries_prepare_files().
+    $expected = array(
+      'files' => array(
+        'js' => array('example.js' => array()),
+        'css' => array('example.css' => array()),
+        'php' => array('example.php' => array()),
+      ),
+    );
+    $library = array(
+      'files' => array(
+        'js' => array('example.js'),
+        'css' => array('example.css'),
+        'php' => array('example.php'),
+      ),
+    );
+    libraries_prepare_files($library, NULL, NULL);
+    $this->assertEqual($expected, $library, 'libraries_prepare_files() works correctly.');
+
     // Test that library information is found correctly.
     $expected = array(
       'name' => 'Example files',
       'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
       'version' => '1',
       'files' => array(
-        'js' => array('example_1.js'),
-        'css' => array('example_1.css'),
-        'php' => array('example_1.php'),
+        'js' => array('example_1.js' => array()),
+        'css' => array('example_1.css' => array()),
+        'php' => array('example_1.php' => array()),
       ),
       'module' => 'libraries_test',
     );
@@ -107,9 +125,9 @@ class LibrariesTestCase extends DrupalWebTestCase {
     // Test a top-level files property.
     $library = libraries_detect('example_files');
     $files = array(
-      'js' => array('example_1.js'),
-      'css' => array('example_1.css'),
-      'php' => array('example_1.php'),
+      'js' => array('example_1.js' => array()),
+      'css' => array('example_1.css' => array()),
+      'php' => array('example_1.php' => array()),
     );
     $this->verbose('<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library['files'], $files, 'Top-level files property works.');
@@ -117,9 +135,9 @@ class LibrariesTestCase extends DrupalWebTestCase {
     // Test version-specific library files.
     $library = libraries_detect('example_versions');
     $files = array(
-      'js' => array('example_2.js'),
-      'css' => array('example_2.css'),
-      'php' => array('example_2.php'),
+      'js' => array('example_2.js' => array()),
+      'css' => array('example_2.css' => array()),
+      'php' => array('example_2.php' => array()),
     );
     $this->verbose('<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library['files'], $files, 'Version-specific library files found.');
