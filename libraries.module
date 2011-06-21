@@ -204,34 +204,34 @@ function libraries_traverse_library(&$library, $callback) {
 }
 
 /**
-* Helper callback to make 'files' property of libraries consistent.
-*
-* This turns libraries' file information declared as e.g.
-* @code
-* $library['files']['js'] = array('example_1.js', 'example_2.js');
-* @endcode
-* into
-* @code
-* $library['files']['js'] = array(
-*   'example_1.js' => array(),
-*   'example_2.js' => array(),
-* );
-* @endcode
-* It does the same for the 'integration files' property.
-*
-* @param $library
-*   An associative array of library information or a part of it, passed by
-*   reference.
-* @param $version
-*   If the library information belongs to a specific version, the version
-*   string. NULL otherwise.
-* @param $variant
-*   If the library information belongs to a specific variant, the variant name.
-*   NULL otherwise.
-*
-* @see libraries_info()
-* @see libraries_invoke()
-*/
+ * Library info callback to make all 'files' properties consistent.
+ *
+ * This turns libraries' file information declared as e.g.
+ * @code
+ * $library['files']['js'] = array('example_1.js', 'example_2.js');
+ * @endcode
+ * into
+ * @code
+ * $library['files']['js'] = array(
+ *   'example_1.js' => array(),
+ *   'example_2.js' => array(),
+ * );
+ * @endcode
+ * It does the same for the 'integration files' property.
+ *
+ * @param $library
+ *   An associative array of library information or a part of it, passed by
+ *   reference.
+ * @param $version
+ *   If the library information belongs to a specific version, the version
+ *   string. NULL otherwise.
+ * @param $variant
+ *   If the library information belongs to a specific variant, the variant name.
+ *   NULL otherwise.
+ *
+ * @see libraries_info()
+ * @see libraries_invoke()
+ */
 function libraries_prepare_files(&$library, $version = NULL, $variant = NULL) {
   // Both the 'files' property and the 'integration files' property contain file
   // declarations, and we want to make both consistent.
