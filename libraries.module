@@ -587,9 +587,8 @@ function libraries_load_files($library) {
         // If the value is not an array, it's a filename and passed as first
         // (and only) argument.
         if (!is_array($options)) {
-          // Prepend the library path to the file name.
-          $data = "$path/$options";
-          $options = NULL;
+          $data = $options;
+          $options = array();
         }
         // In some cases, the first parameter ($data) is an array. Arrays can't
         // be passed as keys in PHP, so we have to get $data from the value
@@ -598,6 +597,8 @@ function libraries_load_files($library) {
           $data = $options['data'];
           unset($options['data']);
         }
+        // Prepend the library path to the file name.
+        $data = "$path/$data";
         // Apply the default group if the group isn't explicitly given.
         if (!isset($options['group'])) {
           $options['group'] = ($type == 'js') ? JS_DEFAULT : CSS_DEFAULT;
