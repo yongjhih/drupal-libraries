@@ -50,6 +50,78 @@ class LibrariesTestCase extends DrupalWebTestCase {
     libraries_prepare_files($library, NULL, NULL);
     $this->assertEqual($expected, $library, 'libraries_prepare_files() works correctly.');
 
+    // Test libraries_detect_dependencies().
+    $library = array(
+      'name' => 'Example',
+      'dependencies' => array('example_missing'),
+    );
+    libraries_detect_dependencies($library);
+    $this->assertEqual($library['error'], 'missing dependency', 'libraries_detect_dependencies() detects missing dependency');
+    $error_message = t('The %dependency library, which the %library library depends on, is not installed.', array(
+      '%dependency' => 'Example missing',
+      '%library' => $library['name'],
+    ));
+    $this->verbose("Expected:<br>$error_message");
+    $this->verbose('Actual:<br>' . $library['error message']);
+    $this->assertEqual($library['error message'], $error_message, 'Correct error message for a missing dependency');
+    $version = '1.1';
+    $compatible = array(
+      '1.1',
+      '<=1.1',
+      '>=1.1',
+      '<1.2',
+      '<2.0',
+      '>1.0',
+      '>1.0-rc1',
+      '>1.0-beta2',
+      '>1.0-alpha3',
+      '>0.1',
+      '<1.2, >1.0',
+      '>0.1, <=1.1',
+    );
+    $incompatible = array(
+      '1.2',
+      '2.0',
+      '<1.1',
+      '>1.1',
+      '<=1.0',
+      '<=1.0-rc1',
+      '<=1.0-beta2',
+      '<=1.0-alpha3',
+      '>=1.2',
+      '<1.1, >0.9',
+      '>=0.1, <1.1',
+    );
+    $library = array(
+      'name' => 'Example',
+    );
+    foreach ($compatible as $version_string) {
+      $library['dependencies'][0] = "example_dependency ($version_string)";
+      // libraries_detect_dependencies() is a post-detect callback, so
+      // 'installed' is already set, when it is called. It sets the value to
+      // FALSE for missing or incompatible dependencies.
+      $library['installed'] = TRUE;
+      libraries_detect_dependencies($library);
+      $this->assertTrue($library['installed'], "libraries_detect_dependencies() detects compatible version string: '$version_string' is compatible with '$version'");
+    }
+    foreach ($incompatible as $version_string) {
+      $library['dependencies'][0] = "example_dependency ($version_string)";
+      $library['installed'] = TRUE;
+      unset($library['error'], $library['error message']);
+      libraries_detect_dependencies($library);
+      $this->assertEqual($library['error'], 'incompatible dependency', "libraries_detect_dependencies() detects incompatible version strings: '$version_string' is incompatible with '$version'");
+    }
+    // Instead of repeating this assertion for each version string, we just
+    // re-use the $library variable from the foreach loop.
+    $error_message = t('The version %dependency_version of the %dependency library is not compatible with the %library library.', array(
+      '%dependency_version' => $version,
+      '%dependency' => 'Example dependency',
+      '%library' => $library['name'],
+    ));
+    $this->verbose("Expected:<br>$error_message");
+    $this->verbose('Actual:<br>' . $library['error message']);
+    $this->assertEqual($library['error message'], $error_message, 'Correct error message for an incompatible dependency');
+
     // Test that library information is found correctly.
     $expected = array(
       'name' => 'Example files',
@@ -156,6 +228,20 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $library = libraries_detect('example_variant');
     $this->verbose('<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library['variants']['example_variant']['installed'], TRUE, 'Existing variant found.');
+
+    // Test dependencies.
+    $library = libraries_load('example_dependency_missing');
+    $this->verbose('<pre>' . var_export($library, TRUE) . '</pre>');
+    $this->assertFalse($library['loaded'], 'Library with missing dependency cannot be loaded');
+    $library = libraries_load('example_dependency_incompatible');
+    $this->verbose('<pre>' . var_export($library, TRUE) . '</pre>');
+    $this->assertFalse($library['loaded'], 'Library with incompatible dependency cannot be loaded');
+    $library = libraries_load('example_dependency_compatible');
+    $this->verbose('<pre>' . var_export($library, TRUE) . '</pre>');
+    $this->assertEqual($library['loaded'], 1, 'Library with compatible dependency is loaded');
+    $loaded = &drupal_static('libraries_load');
+    $this->verbose('<pre>' . var_export($loaded, TRUE) . '</pre>');
+    $this->assertEqual($loaded['example_dependency']['loaded'], 1, 'Dependency library is also loaded');
 
     // Test the applying of callbacks.
     $expected = array(

@@ -200,6 +200,38 @@ function libraries_test_libraries_info() {
     ),
   );
 
+  // Test dependency loading.
+  // We add one file to each library to be able to verify if it was loaded with
+  // libraries_load().
+  // This library acts as a dependency for the libraries below.
+  $libraries['example_dependency'] = array(
+    'name' => 'Example dependency',
+    'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
+    'version' => '1.1',
+    'files' => array('js' => array('example_1.js')),
+  );
+  $libraries['example_dependency_missing'] = array(
+    'name' => 'Example dependency missing',
+    'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
+    'version' => '1',
+    'dependencies' => array('example_missing'),
+    'files' => array('js' => array('example_1.js')),
+  );
+  $libraries['example_dependency_incompatible'] = array(
+    'name' => 'Example dependency incompatible',
+    'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
+    'version' => '1',
+    'dependencies' => array('example_dependency (>1.1)'),
+    'files' => array('js' => array('example_1.js')),
+  );
+  $libraries['example_dependency_compatible'] = array(
+    'name' => 'Example dependency compatible',
+    'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
+    'version' => '1',
+    'dependencies' => array('example_dependency (>=1.1)'),
+    'files' => array('js' => array('example_1.js')),
+  );
+
   // Test the applying of callbacks.
   $libraries['example_callback'] = array(
     'name' => 'Example callback',

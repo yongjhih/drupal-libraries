@@ -63,6 +63,27 @@
  *     - css: A list of CSS files to load, using the same syntax as Drupal
  *       core's hook_library().
  *     - php: A list of PHP files to load.
+ *   - dependencies: An array of libraries this library depends on. Similar to
+ *     declaring module dependencies, the dependency declaration may contain
+ *     information on the supported version. Examples of supported declarations:
+ *     @code
+ *     $libraries['dependencies'] = array(
+ *       // Load the 'example' library, regardless of the version available:
+ *       'example',
+ *       // Only load the 'example' library, if version 1.2 is available:
+ *       'example (1.2)',
+ *       // Only load a version later than 1.3-beta2 of the 'example' library:
+ *       'example (>1.3-beta2)'
+ *       // Only load a version equal to or later than 1.3-beta3:
+ *       'example (>=1.3-beta3)',
+ *       // Only load a version earlier than 1.5:
+ *       'example (<1.5)',
+ *       // Only load a version equal to or earlier than 1.4:
+ *       'example (<=1.4)',
+ *       // Combinations of the above are allowed as well:
+ *       'example (>=1.3-beta2, <1.5)',
+ *     );
+ *     @endcode
  *   - variants: (optional) An associative array of available library variants.
  *     For example, the top-level 'files' property may refer to a default
  *     variant that is compressed. If the library also ships with a minified and
