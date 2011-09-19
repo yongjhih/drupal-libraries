@@ -1,6 +1,7 @@
 
 Libraries 7.x-2.x, xxxx-xx-xx
 -----------------------------
+#1268342 by tstoeckler: Clean up drush libraries-list command.
 #962214 by tstoeckler, sun: Add support for library dependencies.
 #1224838 by sun, mjpa: Fix library path not being prepended to JS/CSS files.
 #1023258 by tstoeckler: Make 'files' consistently keyed by filename.
