@@ -3,7 +3,7 @@ Libraries 7.x-2.x, xxxx-xx-xx
 -----------------------------
 
 
-Libraries 7.x-2.x-ALPHA1, 2011-10-01
+Libraries 7.x-2.0-ALPHA1, 2011-10-01
 ------------------------------------
 #1268342 by tstoeckler: Clean up drush libraries-list command.
 #962214 by tstoeckler, sun: Add support for library dependencies.
