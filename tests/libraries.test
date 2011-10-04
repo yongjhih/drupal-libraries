@@ -360,6 +360,25 @@ class LibrariesTestCase extends DrupalWebTestCase {
     // Test version overloading and variant loading.
     $this->drupalGet('libraries_test/versions_and_variants');
     $this->assertLibraryFiles('example_4', 'Concurrent version and variant overloading');
+
+    // Test caching.
+    variable_set('libraries_test_cache', TRUE);
+    cache_clear_all('example_callback', 'cache_libraries');
+    // When the library information is not cached, all callback groups should be
+    // invoked.
+    $this->drupalGet('libraries_test/cache');
+    $this->assertRaw('The <em>info</em> callback group was invoked.', 'Info callback invoked for uncached libraries.');
+    $this->assertRaw('The <em>pre-detect</em> callback group was invoked.', 'Pre-detect callback invoked for uncached libraries.');
+    $this->assertRaw('The <em>post-detect</em> callback group was invoked.', 'Post-detect callback invoked for uncached libraries.');
+    $this->assertRaw('The <em>load</em> callback group was invoked.', 'Load callback invoked for uncached libraries.');
+    // When the library information is cached only the load callback group should
+    // be invoked.
+    $this->drupalGet('libraries_test/cache');
+    $this->assertNoRaw('The <em>info</em> callback group was not invoked.', 'Info callback not invoked for cached libraries.');
+    $this->assertNoRaw('The <em>pre-detect</em> callback group was not invoked.', 'Pre-detect callback not invoked for cached libraries.');
+    $this->assertNoRaw('The <em>post-detect</em> callback group was not invoked.', 'Post-detect callback not invoked for cached libraries.');
+    $this->assertRaw('The <em>load</em> callback group was invoked.', 'Load callback invoked for cached libraries.');
+    variable_set('libraries_test_cache', FALSE);
   }
 
   /**

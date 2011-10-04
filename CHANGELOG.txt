@@ -1,6 +1,7 @@
 
 Libraries 7.x-2.x, xxxx-xx-xx
 -----------------------------
+#1205854 by tstoeckler, sun: Test library caching.
 
 
 Libraries 7.x-2.0-ALPHA1, 2011-10-01
