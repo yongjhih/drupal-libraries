@@ -398,7 +398,8 @@ function libraries_info_defaults(&$library, $name) {
     'info' => array(),
     'pre-detect' => array(),
     'post-detect' => array(),
-    'load' => array(),
+    'pre-load' => array(),
+    'post-load' => array(),
   );
 
   // Add our own callbacks before any others.
@@ -596,10 +597,14 @@ function libraries_load($name, $variant = NULL) {
         }
       }
 
-      // Invoke callbacks in the 'load' group.
-      libraries_invoke('load', $library);
+      // Invoke callbacks in the 'pre-load' group.
+      libraries_invoke('pre-load', $library);
 
+      // Load all the files associated with the library.
       $library['loaded'] = libraries_load_files($library);
+
+      // Invoke callbacks in the 'post-load' group.
+      libraries_invoke('post-load', $library);
     }
     $loaded[$name] = $library;
   }

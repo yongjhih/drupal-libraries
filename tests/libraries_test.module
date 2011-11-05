@@ -245,14 +245,16 @@ function libraries_test_libraries_info() {
             'info callback' => 'not applied',
             'pre-detect callback' => 'not applied',
             'post-detect callback' => 'not applied',
-            'load callback' => 'not applied',
+            'pre-load callback' => 'not applied',
+            'post-load callback' => 'not applied',
           ),
         ),
         // These keys are for testing purposes only.
         'info callback' => 'not applied',
         'pre-detect callback' => 'not applied',
         'post-detect callback' => 'not applied',
-        'load callback' => 'not applied',
+        'pre-load callback' => 'not applied',
+        'post-load callback' => 'not applied',
       ),
     ),
     'variants' => array(
@@ -261,20 +263,23 @@ function libraries_test_libraries_info() {
         'info callback' => 'not applied',
         'pre-detect callback' => 'not applied',
         'post-detect callback' => 'not applied',
-        'load callback' => 'not applied',
+        'pre-load callback' => 'not applied',
+        'post-load callback' => 'not applied',
       ),
     ),
     'callbacks' => array(
       'info' => array('_libraries_test_info_callback'),
       'pre-detect' => array('_libraries_test_pre_detect_callback'),
       'post-detect' => array('_libraries_test_post_detect_callback'),
-      'load' => array('_libraries_test_load_callback'),
+      'pre-load' => array('_libraries_test_pre_load_callback'),
+      'post-load' => array('_libraries_test_post_load_callback'),
     ),
     // These keys are for testing purposes only.
     'info callback' => 'not applied',
     'pre-detect callback' => 'not applied',
     'post-detect callback' => 'not applied',
-    'load callback' => 'not applied',
+    'pre-load callback' => 'not applied',
+    'post-load callback' => 'not applied',
   );
 
   return $libraries;
@@ -392,14 +397,25 @@ function _libraries_test_post_detect_callback(&$library, $version, $variant) {
 }
 
 /**
- * Sets the 'load callback' key.
+ * Sets the 'pre-load callback' key.
  *
- * This function is used as a test callback for the 'load' callback group.
+ * This function is used as a test callback for the 'pre-load' callback group.
  *
  * @see _libraries_test_callback()
  */
-function _libraries_test_load_callback(&$library, $version, $variant) {
-  _libraries_test_callback($library, $version, $variant, 'load');
+function _libraries_test_pre_load_callback(&$library, $version, $variant) {
+  _libraries_test_callback($library, $version, $variant, 'pre-load');
+}
+
+/**
+ * Sets the 'post-load callback' key.
+ *
+ * This function is used as a test callback for the 'post-load' callback group.
+ *
+ * @see _libraries_test_callback()
+ */
+function _libraries_test_post_load_callback(&$library, $version, $variant) {
+  _libraries_test_callback($library, $version, $variant, 'post-load');
 }
 
 /**
