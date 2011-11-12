@@ -313,23 +313,24 @@ function libraries_detect_dependencies(&$library, $version = NULL, $variant = NU
 /**
  * Returns information about registered libraries.
  *
- * The returned information is unprocessed, i.e. as registered by modules.
+ * The returned information is unprocessed; i.e., as registered by modules.
  *
  * @param $name
  *   (optional) The machine name of a library to return registered information
- *   for, or FALSE if no library with the given name exists. If omitted,
- *   information about all libraries is returned.
+ *   for. If omitted, information about all registered libraries is returned.
  *
- * @return
+ * @return array|false
  *   An associative array containing registered information for all libraries,
- *   or the registered information for the library specified by $name.
+ *   the registered information for the library specified by $name, or FALSE if
+ *   the library $name is not registered.
  *
  * @see hook_libraries_info()
  *
  * @todo Re-introduce support for include file plugin system - either by copying
  *   Wysiwyg's code, or directly switching to CTools.
  */
-function libraries_info($name = NULL) {
+function &libraries_info($name = NULL) {
+  // This static cache is re-used by libraries_detect() to save memory.
   $libraries = &drupal_static(__FUNCTION__);
 
   if (!isset($libraries)) {
@@ -364,7 +365,13 @@ function libraries_info($name = NULL) {
   }
 
   if (isset($name)) {
-    return !empty($libraries[$name]) ? $libraries[$name] : FALSE;
+    if (!empty($libraries[$name])) {
+      return $libraries[$name];
+    }
+    else {
+      $false = FALSE;
+      return $false;
+    }
   }
   return $libraries;
 }
@@ -412,23 +419,14 @@ function libraries_info_defaults(&$library, $name) {
 /**
  * Tries to detect a library and its installed version.
  *
- * @todo We need to figure out whether, and if, how we want to retain the
- *   processed information. I.e. either use a static cache here, or make
- *   libraries_info() conditionally invoke libraries_detect($name). D7 only way:
- *   Re-use drupal_static() of libraries_info() - but would still require to
- *   update the (DB) cache (there likely will be one soon). Also, we probably do
- *   not want to ALWAYS parse ALL possible libraries; rather, the
- *   requesting/consuming module likely wants to know whether a list of
- *   supported libraries (possibly those registered by itself, or in a certain
- *   "category") is available... Food for thought.
- *
  * @param $name
  *   The machine name of a library to return registered information for.
  *
- * @return
+ * @return array|false
  *   An associative array containing registered information for the library
- *   specified by $name. In addition to the keys returned by libraries_info()
- *   libraries contain the following keys:
+ *   specified by $name, or FALSE if the library $name is not registered.
+ *   In addition to the keys returned by libraries_info(), the following keys
+ *   are contained:
  *   - installed: A boolean indicating whether the library is installed. Note
  *     that not only the top-level library, but also each variant contains this
  *     key.
@@ -441,7 +439,16 @@ function libraries_info_defaults(&$library, $name) {
  * @see libraries_info()
  */
 function libraries_detect($name) {
-  $library = libraries_info($name);
+  // Re-use the statically cached value of libraries_info() to save memory.
+  $library = &libraries_info($name);
+
+  if ($library === FALSE) {
+    return $library;
+  }
+  // If 'installed' is set, library detection ran already.
+  if (isset($library['installed'])) {
+    return $library;
+  }
 
   $library['installed'] = FALSE;
 
