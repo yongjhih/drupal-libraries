@@ -1,6 +1,7 @@
 
 Libraries 7.x-2.x, xxxx-xx-xx
 -----------------------------
+#1323530 by tstoeckler: Document libraries_get_version() pattern matching.
 #1325524 by sun, Rob Loach, tstoeckler: Statically cache libraries_detect().
 #1321372 by Rob Loach: Provide a 'post-load' callback group.
 #1205854 by tstoeckler, sun: Test library caching.
