@@ -410,23 +410,44 @@ class LibrariesTestCase extends DrupalWebTestCase {
    *   array('js', 'css', 'php').
    */
   function assertLibraryFiles($name, $label = '', $extensions = array('js', 'css', 'php')) {
-    $names = drupal_map_assoc(array('example_1', 'example_2', 'example_3', 'example_4'));
-    unset($names[$name]);
+    $label = ($label !== '' ? "$label: " : '');
 
-    // Test that the wrong files are not loaded.
-    foreach ($names as $filename) {
+    // Test that the wrong files are not loaded...
+    $names = array(
+      'example_1' => FALSE,
+      'example_2' => FALSE,
+      'example_3' => FALSE,
+      'example_4' => FALSE,
+    );
+    // ...and the correct ones are.
+    $names[$name] = TRUE;
+
+    // Test for the specific HTML that the different file types appear as in the
+    // DOM.
+    $html = array(
+      'js' => array('<script type="text/javascript" src="', '"></script>'),
+      'css' => array('@import url("', '");'),
+      // PHP files do not get added to the DOM directly.
+      // @see _libraries_test_load()
+      'php' => array('<li>', '</li>'),
+    );
+
+    foreach ($names as $name => $expected) {
       foreach ($extensions as $extension) {
-        $message = "$filename.$extension not found";
-        $message = ($label !== '' ? "$label: $message" : $message);
-        $this->assertNoRaw("$filename.$extension", $message);
+        $filepath = drupal_get_path('module', 'libraries_test') . "/example/$name.$extension";
+        // JavaScript and CSS files appear as full URLs and with an appended
+        // query string.
+        if (in_array($extension, array('js', 'css'))) {
+          $filepath = url('', array('absolute' => TRUE)) . $filepath . '?' . variable_get('css_js_query_string');
+        }
+        $raw = $html[$extension][0] . $filepath . $html[$extension][1];
+        if ($expected) {
+          $this->assertRaw($raw, "$label$name.$extension found.");
+        }
+        else {
+          $this->assertNoRaw($raw, "$label$name.$extension found.");
+        }
       }
-    }
-
-    // Test that the correct files are loaded.
-    foreach ($extensions as $extension) {
-      $message = "$name.$extension found";
-      $message = ($label !== '' ? "$label: $message" : $message);
-      $this->assertRaw("$name.$extension", $message);
     }
   }
 
