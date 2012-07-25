@@ -1,6 +1,8 @@
 
 Libraries 7.x-2.x, xxxx-xx-xx
 -----------------------------
+#1386250 by tstoeckler: Clarify module and library installation in README.txt.
+#1578618 by iamEAP: Fixed Fatal cache flush failure on major version upgrades.
 #1449346 by tstoeckler, sun: Clean-up libraries.test
 
 
@@ -14,7 +16,7 @@ Libraries 7.x-2.0-alpha2, 2011-12-15
 #1205854 by tstoeckler, sun: Test library caching.
 
 
-Libraries 7.x-2.0-ALPHA1, 2011-10-01
+Libraries 7.x-2.0-alpha1, 2011-10-01
 ------------------------------------
 #1268342 by tstoeckler: Clean up drush libraries-list command.
 #962214 by tstoeckler, sun: Add support for library dependencies.
