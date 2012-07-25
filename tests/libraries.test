@@ -194,6 +194,10 @@ class LibrariesTestCase extends DrupalWebTestCase {
     );
     libraries_info_defaults($expected, 'example_info_file');
     $library = libraries_info('example_info_file');
+    // If this module was downloaded from Drupal.org, the Drupal.org packaging
+    // system has corrupted the test info file.
+    // @see http://drupal.org/node/1606606
+    unset($library['core'], $library['datestamp'], $library['project'], $library['version']);
     $this->verbose('Expected:<pre>' . var_export($expected, TRUE) . '</pre>');
     $this->verbose('Actual:<pre>' . var_export($library, TRUE) . '</pre>');
     $this->assertEqual($library, $expected, 'Library specified with an .info file found');
