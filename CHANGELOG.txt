@@ -1,4 +1,7 @@
 
+Libraries 7.x-3.x, xxxx-xx-xx
+-----------------------------
+
 Libraries 7.x-2.x, xxxx-xx-xx
 -----------------------------
 
@@ -73,7 +76,7 @@ Libraries 6.x-1.0, 2010-01-27
 #496732 by tstoeckler, robphillips: Allow placing libraries in root directory.
 
 
-Libraries 6.x-1.0-ALPHA1, 2009-12-30
+Libraries 6.x-1.0-alpha1, 2009-12-30
 ------------------------------------
 #480440 by markus_petrux: Fixed base_path() not applied to default library path.
 #320562 by sun: Added basic functions.
