@@ -1,6 +1,7 @@
 
 Libraries 7.x-2.x, xxxx-xx-xx
 -----------------------------
+#1773640 by tstoeckler: Use drupal_get_path() to find the profile directory.
 #1565426 by tstoeckler: Invoke hook_libraries_info() in enabled themes.
 
 Libraries 7.x-2.0, 2012-07-29
