@@ -347,6 +347,26 @@ function &libraries_info($name = NULL) {
         $libraries[$machine_name] = $properties;
       }
     }
+    // Gather information from hook_libraries_info() in enabled themes.
+    // @see drupal_alter()
+    global $theme, $base_theme_info;
+    if (isset($theme)) {
+      $theme_keys = array();
+      foreach ($base_theme_info as $base) {
+        $theme_keys[] = $base->name;
+      }
+      $theme_keys[] = $theme;
+      foreach ($theme_keys as $theme_key) {
+        $function = $theme_key . '_' . 'libraries_info';
+        if (function_exists($function)) {
+          foreach ($function() as $machine_name => $properties) {
+            $properties['theme'] = $theme_key;
+            $libraries[$machine_name] = $properties;
+          }
+        }
+      }
+    }
+
     // Gather information from .info files.
     // .info files override module definitions.
     foreach (libraries_scan_info_files() as $machine_name => $file) {
