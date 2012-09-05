@@ -520,7 +520,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
           $this->assertRaw($raw, "$label$name.$extension found.");
         }
         else {
-          $this->assertNoRaw($raw, "$label$name.$extension found.");
+          $this->assertNoRaw($raw, "$label$name.$extension not found.");
         }
       }
     }
