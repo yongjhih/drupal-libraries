@@ -9,12 +9,7 @@
  * Implements hook_flush_caches().
  */
 function libraries_flush_caches() {
-  // @todo When upgrading from 1.x, update.php attempts to flush caches before
-  //   the cache table has been created.
-  // @see http://drupal.org/node/1477932
-  if (db_table_exists('cache_libraries')) {
-    return array('cache_libraries');
-  }
+  return array('cache_libraries');
 }
 
 /**
@@ -69,18 +64,18 @@ function libraries_get_libraries() {
   $profile = drupal_get_path('profile', drupal_get_profile());
   $config = conf_path();
 
-  // Similar to 'modules' and 'themes' directories in the root directory,
-  // certain distributions may want to place libraries into a 'libraries'
-  // directory in Drupal's root directory.
-  $searchdir[] = 'libraries';
+  // @todo core/libraries
 
   // Similar to 'modules' and 'themes' directories inside an installation
   // profile, installation profiles may want to place libraries into a
   // 'libraries' directory.
   $searchdir[] = "$profile/libraries";
 
-  // Always search sites/all/libraries.
+  // Search sites/all/libraries for backwards-compatibility.
   $searchdir[] = 'sites/all/libraries';
+
+  // Always search the root 'libraries' directory.
+  $searchdir[] = 'libraries';
 
   // Also search sites/<domain>/*.
   $searchdir[] = "$config/libraries";
@@ -124,9 +119,9 @@ function libraries_scan_info_files() {
 
   // Build a list of directories.
   $directories = module_invoke_all('libraries_info_file_paths');
-  $directories[] = 'libraries';
   $directories[] = "$profile/libraries";
   $directories[] = 'sites/all/libraries';
+  $directories[] = 'libraries';
   $directories[] = "$config/libraries";
 
   // Scan for info files.
@@ -590,15 +585,14 @@ function libraries_load($name, $variant = NULL) {
   $loaded = &drupal_static(__FUNCTION__, array());
 
   if (!isset($loaded[$name])) {
-    $library = cache_get($name, 'cache_libraries');
+    $library = cache('libraries')->get($name);
     if ($library) {
       $library = $library->data;
     }
     else {
       $library = libraries_detect($name);
-      cache_set($name, $library, 'cache_libraries');
+      cache('libraries')->set($name, $library);
     }
-
     // If a variant was specified, override the top-level properties with the
     // variant properties.
     if (isset($variant)) {
