@@ -1,6 +1,7 @@
 
 Libraries 8.x-3.x, xxxx-xx-xx
 -----------------------------
+#1167496 by tstoeckler: Remove leftover libraries.test file.
 #1167496 by tstoeckler, benshell: Port to Drupal 8.
 
 Libraries 7.x-3.x, xxxx-xx-xx
