@@ -5,7 +5,7 @@
  * Definition of \Drupal\libraries\LibraryManager\LibraryClassDiscoveryInterface.php
  */
 
-namespace Drupal\libraries\LibraryManager;
+namespace Drupal\libraries\LibraryManager\Discovery;
 
 use Drupal\Component\Plugin\Discovery\DiscoveryInterface;
 
