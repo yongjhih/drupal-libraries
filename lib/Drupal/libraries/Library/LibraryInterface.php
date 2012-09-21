@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\libraries\Library\LibraryInterface.
+ * Definition of \Drupal\libraries\Library\LibraryInterface.
  */
 
 namespace Drupal\libraries\Library;

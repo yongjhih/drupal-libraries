@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Definition of \Drupal\libraries\LibraryManager\AnnotatedLibraryClassDiscovery
+ * Definition of \Drupal\libraries\LibraryManager\Discovery\AnnotatedLibraryClassDiscovery
  */
 
-namespace Drupal\libraries\LibraryManager;
+namespace Drupal\libraries\LibraryManager\Discovery;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
@@ -20,21 +20,21 @@ use Drupal\Component\Reflection\MockFileFinder;
 class AnnotatedLibraryClassDiscovery implements LibraryClassDiscoveryInterface {
 
   /**
-   * A list of paths to search for library classe.
+   * A list of paths to search for library classes.
    *
    * @var array|\Traversable
    */
   protected $paths = array();
 
   /**
-   * Implements Drupal\libraries\LibraryManager\LibraryClassDiscoveryInterface.
+   * Implements LibraryClassDiscoveryInterface::setPaths().
    */
   public function setPaths($paths) {
     $this->paths = $paths;
   }
 
   /**
-   * Implements Drupal\libraries\LibraryManager\LibraryClassDiscoveryInterface::getDefinition().
+   * Implements LibraryClassDiscoveryInterface::getDefinition().
    */
   public function getDefinition($plugin_id) {
     $plugins = $this->getDefinitions();
@@ -42,7 +42,7 @@ class AnnotatedLibraryClassDiscovery implements LibraryClassDiscoveryInterface {
   }
 
   /**
-   * Implements Drupal\libraries\LibraryManager\LibraryClassDiscoveryInterface::getDefinitions().
+   * Implements LibraryClassDiscoveryInterface::getDefinitions().
    */
   public function getDefinitions() {
     $reader = new AnnotationReader();

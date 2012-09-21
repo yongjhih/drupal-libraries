@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\libraries\Tests\LibraryClassDiscoveryTest.
+ * Definition of \Drupal\libraries\Tests\LibraryClassDiscoveryTest.
  */
 
 namespace Drupal\libraries\Tests;
