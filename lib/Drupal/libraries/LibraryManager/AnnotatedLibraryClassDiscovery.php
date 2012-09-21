@@ -7,12 +7,12 @@
 
 namespace Drupal\libraries\LibraryManager;
 
-use \Doctrine\Common\Annotations\AnnotationReader;
-use \Doctrine\Common\Annotations\AnnotationRegistry;
-use \Doctrine\Common\Reflection\StaticReflectionParser;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\AnnotationRegistry;
+use Doctrine\Common\Reflection\StaticReflectionParser;
 
-use \Drupal\Component\Plugin\Discovery\DiscoveryInterface;
-use \Drupal\Component\Reflection\MockFileFinder;
+use Drupal\Component\Plugin\Discovery\DiscoveryInterface;
+use Drupal\Component\Reflection\MockFileFinder;
 
 /**
  * Defines a discovery mechanism to find annotated library classes.

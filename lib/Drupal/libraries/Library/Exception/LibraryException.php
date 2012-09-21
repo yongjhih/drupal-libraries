@@ -7,9 +7,7 @@
 
 namespace Drupal\libraries\Library\Exception;
 
-use \Exception;
-
-class LibraryException extends Exception {
+class LibraryException extends \Exception {
 
   /**
    * The machine-readable library name.

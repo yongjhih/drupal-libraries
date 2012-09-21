@@ -7,7 +7,7 @@
 
 namespace Drupal\libraries\Tests;
 
-use \Drupal\simpletest\WebTestBase;
+use Drupal\simpletest\WebTestBase;
 
 /**
  * Tests basic detection and loading of libraries.

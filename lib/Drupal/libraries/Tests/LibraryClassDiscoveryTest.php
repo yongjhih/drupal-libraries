@@ -7,8 +7,8 @@
 
 namespace Drupal\libraries\Tests;
 
-use \Drupal\simpletest\UnitTestBase;
-use \Drupal\libraries\LibraryManager\AnnotatedLibraryClassDiscovery;
+use Drupal\simpletest\UnitTestBase;
+use Drupal\libraries\LibraryManager\AnnotatedLibraryClassDiscovery;
 
 /**
  * Tests the discovery of library classes.

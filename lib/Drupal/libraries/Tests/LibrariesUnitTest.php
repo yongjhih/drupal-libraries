@@ -7,7 +7,7 @@
 
 namespace Drupal\libraries\Tests;
 
-use \Drupal\simpletest\UnitTestBase;
+use Drupal\simpletest\UnitTestBase;
 
 /**
  * Tests basic Libraries API functions.

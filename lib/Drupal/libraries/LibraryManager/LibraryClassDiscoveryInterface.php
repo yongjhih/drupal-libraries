@@ -7,7 +7,7 @@
 
 namespace Drupal\libraries\LibraryManager;
 
-use \Drupal\Component\Plugin\Discovery\DiscoveryInterface;
+use Drupal\Component\Plugin\Discovery\DiscoveryInterface;
 
 /**
  * Provides a common interface for library class discovery.

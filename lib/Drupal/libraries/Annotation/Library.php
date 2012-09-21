@@ -7,7 +7,7 @@
 
 namespace Drupal\libraries\Annotation;
 
-use \Drupal\Core\Annotation\Plugin;
+use Drupal\Core\Annotation\Plugin;
 
 /**
  * Defines a Library annotation object.

@@ -6,6 +6,4 @@
 
 namespace Drupal\libraries\LibraryManager\Exception;
 
-use \Exception;
-
-class LibraryClassFetchingFailedException extends Exception {}
+class LibraryClassFetchingFailedException extends \Exception {}
