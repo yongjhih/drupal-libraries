@@ -11,11 +11,12 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Reflection\StaticReflectionParser;
 
-use Drupal\Component\Plugin\Discovery\DiscoveryInterface;
 use Drupal\Component\Reflection\MockFileFinder;
 
 /**
  * Defines a discovery mechanism to find annotated library classes.
+ *
+ * @see \Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery
  */
 class AnnotatedLibraryClassDiscovery implements LibraryClassDiscoveryInterface {
 
@@ -27,37 +28,28 @@ class AnnotatedLibraryClassDiscovery implements LibraryClassDiscoveryInterface {
   protected $paths = array();
 
   /**
-   * Implements LibraryClassDiscoveryInterface::setPaths().
-   */
-  public function setPaths($paths) {
-    $this->paths = $paths;
-  }
-
-  /**
    * Implements LibraryClassDiscoveryInterface::getDefinition().
    */
-  public function getDefinition($plugin_id) {
-    $plugins = $this->getDefinitions();
-    return isset($plugins[$plugin_id]) ? $plugins[$plugin_id] : NULL;
+  public function getLibraryInfo($name) {
+    $libraries = $this->getAllLibraryInfo();
+    return isset($libraries[$name]) ? $libraries[$name] : NULL;
   }
 
   /**
    * Implements LibraryClassDiscoveryInterface::getDefinitions().
    */
-  public function getDefinitions() {
+  public function getAllLibraryInfo() {
     $reader = new AnnotationReader();
 
     AnnotationRegistry::registerAutoloadNamespace('Drupal\libraries\Annotation', array(drupal_get_path('module', 'libraries') . '/lib'));
 
     // Directories to search for library classes.
-    // We need to use OS-safe directory separators.
-    // @see \Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery
     $namespace_path = 'Drupal' . DIRECTORY_SEPARATOR . 'Library';
     $directories = array_map(function($path) use ($namespace_path) {
       return $path . DIRECTORY_SEPARATOR . $namespace_path ;
     }, $this->paths);
 
-    $definitions = array();
+    $libraries = array();
     foreach ($directories as $directory) {
       if (is_dir($directory)) {
         $directory_info = new \DirectoryIterator($directory);
@@ -70,25 +62,26 @@ class AnnotatedLibraryClassDiscovery implements LibraryClassDiscoveryInterface {
               $namespace_path . DIRECTORY_SEPARATOR . $basename
             );
 
-            // @see \Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery::getDefinitions()
-            // The filename is already known, so there is no need to find the
-            // file. However, StaticReflectionParser needs a finder, so use a
-            // mock version.
             $finder = MockFileFinder::create($file_info->getPathName());
             $parser = new StaticReflectionParser($class, $finder);
 
             if ($annotation = $reader->getClassAnnotation($parser->getReflectionClass(), 'Drupal\libraries\Annotation\Library')) {
-              // AnnotationInterface::get() returns the array definition
-              // instead of requiring us to work with the annotation object.
-              $definition = $annotation->get();
-              $definition['name'] = $basename;
-              $definitions[$basename] = $definition;
+              $library = $annotation->get();
+              $library['name'] = $basename;
+              $libraries[$basename] = $library;
             }
           }
         }
       }
     }
 
-    return $definitions;
+    return $libraries;
+  }
+
+  /**
+   * Implements LibraryClassDiscoveryInterface::setPaths().
+   */
+  public function setPaths($paths) {
+    $this->paths = $paths;
   }
 }

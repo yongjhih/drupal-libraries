@@ -37,8 +37,8 @@ class LibraryClassDiscoveryTest extends UnitTestBase {
 
     // Test that AnnotatedLibraryClassDiscovery does not throw errors when used
     // without setting paths before.
-    $this->assertIdentical($discovery->getDefinitions(), array());
-    $this->assertIdentical($discovery->getDefinition('Example'), NULL);
+    $this->assertIdentical($discovery->getAllLibraryInfo(), array());
+    $this->assertIdentical($discovery->getLibraryInfo('Example'), NULL);
 
     // Now set the proper test path to actually test library class discovery.
     $test_path = implode(DIRECTORY_SEPARATOR, array(
@@ -50,8 +50,6 @@ class LibraryClassDiscoveryTest extends UnitTestBase {
     $discovery->setPaths(array($test_path));
 
     // Test AnnotatedLibraryClassDiscovery::getDefinitions().
-    $definitions = $discovery->getDefinitions();
-    $this->verbose('Definitions:<pre>' . var_export($definitions, TRUE) . '</pre>');
     $expected = array(
       'Example' => array(
         'label' => 'Example test library',
@@ -60,10 +58,10 @@ class LibraryClassDiscoveryTest extends UnitTestBase {
         'name' => 'Example',
       ),
     );
-    $this->assertEqual($definitions, $expected);
+    $this->assertEqual($discovery->getAllLibraryInfo(), $expected);
 
-    // Test AnnotatedLibraryClassDiscovery::getDefinition().
-    $definition = $discovery->getDefinition('Example');
-    $this->assertEqual($definition, $expected['Example']);
+    // Test AnnotatedLibraryClassDiscovery::getLibraryInfo().
+    $this->assertEqual($discovery->getLibraryInfo('Example'), $expected['Example']);
+    $this->assertIdentical($discovery->getLibraryInfo('Missing'), NULL);
   }
 }
