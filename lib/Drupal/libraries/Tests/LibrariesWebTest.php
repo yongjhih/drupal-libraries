@@ -450,7 +450,7 @@ class LibrariesWebTest extends WebTestBase {
     // Test for the specific HTML that the different file types appear as in the
     // DOM.
     $html = array(
-      'js' => array('<script type="text/javascript" src="', '"></script>'),
+      'js' => array('<script src="', '"></script>'),
       'css' => array('@import url("', '");'),
       // PHP files do not get added to the DOM directly.
       // @see _libraries_test_load()
