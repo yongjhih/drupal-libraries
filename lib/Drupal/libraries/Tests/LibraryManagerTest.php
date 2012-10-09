@@ -9,7 +9,7 @@ namespace Drupal\libraries\Tests;
 
 use Drupal\simpletest\UnitTestBase;
 use Drupal\libraries\LibraryManager\DefaultLibraryManager;
-use Drupal\libraries\Tests\MockLibraryClassDiscovery;
+use Drupal\libraries\Tests\MockLibraryInfoDiscovery;
 
 /**
  * Tests the discovery of library classes.
@@ -25,30 +25,26 @@ class LibraryManagerTest extends UnitTestBase {
   }
 
   /**
-   * Tests AnnotatedLibraryClassDiscovery.
+   * Tests DefaultLibraryManager.
    */
   public function testDefaultLibraryManager() {
     $libraries = array(
       'Example' => array(
+        'name' => 'Example',
         'label' => 'Example test library',
-        'vendor' => 'example',
-        'package' => 'example',
+        'vendor' => 'example_vendor',
+        'package' => 'example_package',
       ),
     );
-    $discovery = new MockLibraryClassDiscovery($libraries);
+    $discovery = new MockLibraryInfoDiscovery($libraries);
     $manager = new DefaultLibraryManager($discovery);
-
-    // Tests that getLibraryInfo() is dispatched to the discovery object.
-    $this->assertIdentical($discovery->getLibraryInfo('Example'), $manager->getLibraryInfo('Example'));
-    $this->assertIdentical($discovery->getLibraryInfo('Missing'), $manager->getLibraryInfo('Missing'));
 
     // Tests that getAllLibraryInfo() is dispatched to the discovery object.
     $this->assertIdentical($discovery->getAllLibraryInfo(), $manager->getAllLibraryInfo());
 
-    // Tests that setPaths() is dispatched to the discovery object.
-    $this->assertEqual($discovery->paths, array());
-    $paths = array('a', 'b', 'c');
-    $manager->setPaths($paths);
-    $this->assertEqual($discovery->paths, $paths);
+    // Tests that getLibraryInfo() is dispatched to the discovery object.
+    foreach ($libraries as $name => $library) {
+      $this->assertIdentical($discovery->getLibraryInfo($name), $manager->getLibraryInfo($name));
+    }
   }
 }

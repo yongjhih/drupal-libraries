@@ -18,7 +18,7 @@ use Drupal\Component\Reflection\MockFileFinder;
  *
  * @see \Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery
  */
-class AnnotatedLibraryClassDiscovery implements LibraryClassDiscoveryInterface {
+class AnnotatedLibraryClassDiscovery implements LibraryInfoDiscoveryInterface {
 
   /**
    * A list of paths to search for library classes.
@@ -26,6 +26,16 @@ class AnnotatedLibraryClassDiscovery implements LibraryClassDiscoveryInterface {
    * @var array|\Traversable
    */
   protected $paths = array();
+
+  /**
+   * Constructs an AnnotatedLibraryClassDiscovery object.
+   *
+   * @param array|object|\Traversable $paths
+   *   A list of paths to search for library classes.
+   */
+  public function __construct($paths) {
+    $this->paths = $paths;
+  }
 
   /**
    * Implements LibraryClassDiscoveryInterface::getDefinition().
@@ -76,12 +86,5 @@ class AnnotatedLibraryClassDiscovery implements LibraryClassDiscoveryInterface {
     }
 
     return $libraries;
-  }
-
-  /**
-   * Implements LibraryClassDiscoveryInterface::setPaths().
-   */
-  public function setPaths($paths) {
-    $this->paths = $paths;
   }
 }

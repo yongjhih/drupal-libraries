@@ -2,19 +2,19 @@
 
 /**
  * @file
- * Definition of \Drupal\libraries\Tests\MockLibraryClassDiscovery
+ * Definition of \Drupal\libraries\Tests\MockLibraryInfoDiscovery
  */
 
 namespace Drupal\libraries\Tests;
 
-use Drupal\libraries\LibraryManager\Discovery\LibraryClassDiscoveryInterface;
+use Drupal\libraries\LibraryManager\Discovery\LibraryInfoDiscoveryInterface;
 
 /**
- * Defines a mock discovery mechanism to annotated library classes.
+ * Defines a mock discovery mechanism to annotated library information.
  *
  * This class simply returns the library information passed in the constructor.
  */
-class MockLibraryClassDiscovery implements LibraryClassDiscoveryInterface {
+class MockLibraryInfoDiscovery implements LibraryInfoDiscoveryInterface {
 
   /**
    * Static library information to return.
@@ -22,14 +22,7 @@ class MockLibraryClassDiscovery implements LibraryClassDiscoveryInterface {
   protected $libraries;
 
   /**
-   * An array of paths passed into MockLibraryClassDiscovery::setPaths().
-   *
-   * For testability, this is a public variable.
-   */
-  public $paths = array();
-
-  /**
-   * Construct a MockLibraryClassDiscovery object.
+   * Constructs a MockLibraryClassDiscovery object.
    *
    * @param array $libraries
    *   An array of library information that will be returned.
@@ -52,12 +45,5 @@ class MockLibraryClassDiscovery implements LibraryClassDiscoveryInterface {
    */
   public function getAllLibraryInfo() {
     return $this->libraries;
-  }
-
-  /**
-   * Implements LibraryClassDiscoveryInterface::setPaths().
-   */
-  public function setPaths($paths) {
-    $this->paths = $paths;
   }
 }

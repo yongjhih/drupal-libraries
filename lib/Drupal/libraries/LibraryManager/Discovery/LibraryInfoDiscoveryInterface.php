@@ -2,17 +2,17 @@
 
 /**
  * @file
- * Definition of \Drupal\libraries\LibraryManager\LibraryClassDiscoveryInterface.php
+ * Definition of \Drupal\libraries\LibraryManager\LibraryInfoDiscoveryInterface.php
  */
 
 namespace Drupal\libraries\LibraryManager\Discovery;
 
 /**
- * Provides a common interface for library class discovery.
+ * Provides a common interface for library info discovery.
  *
  * @see \Drupal\Component\Plugin\Discovery\DiscoveryInterface
  */
-interface LibraryClassDiscoveryInterface {
+interface LibraryInfoDiscoveryInterface {
 
   /**
    * Gets information about a library.
@@ -41,12 +41,4 @@ interface LibraryClassDiscoveryInterface {
    *   depicted in LibraryClassDiscoveryInterface::getLibraryInfo().
    */
   public function getAllLibraryInfo();
-
-  /**
-   * Sets the list of paths to search for library classes.
-   *
-   * @param array|\Traversable $paths
-   *   A list of paths to search for library classes.
-   */
-  public function setPaths($paths);
 }
