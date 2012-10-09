@@ -1,6 +1,7 @@
 
 Libraries 8.x-3.x, xxxx-xx-xx
 -----------------------------
+#1779714 by tstoeckler, klonos: Wrong filepath in README.txt and fix JS testing.
 #1167496 by tstoeckler: Remove leftover libraries.test file.
 #1167496 by tstoeckler, benshell: Port to Drupal 8.
 
