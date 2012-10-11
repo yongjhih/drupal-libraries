@@ -37,7 +37,7 @@ class LibraryManagerTest extends UnitTestBase {
       ),
     );
     $discovery = new MockLibraryInfoDiscovery($libraries);
-    $manager = new DefaultLibraryManager($discovery);
+    $manager = new DefaultLibraryManager($discovery, state());
 
     // Tests that getAllLibraryInfo() is dispatched to the discovery object.
     $this->assertIdentical($discovery->getAllLibraryInfo(), $manager->getAllLibraryInfo());

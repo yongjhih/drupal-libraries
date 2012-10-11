@@ -1,0 +1,7 @@
+<?php
+
+/**
+ * @file
+ * Tests Libraries API's dependency handling for modules.
+ */
+

@@ -140,7 +140,7 @@ class LibrariesWebTest extends WebTestBase {
     // Test a library specified with an .info file gets detected.
     $expected = array(
       'name' => 'Example info file',
-      'info file' => drupal_get_path('module', 'libraries_test') . '/example/example_info_file.libraries.info',
+      'info file' => drupal_get_path('module', 'libraries') . '/tests/example/example_info_file.libraries.info',
     );
     libraries_info_defaults($expected, 'example_info_file');
     $library = libraries_info('example_info_file');
@@ -459,7 +459,7 @@ class LibrariesWebTest extends WebTestBase {
 
     foreach ($names as $name => $expected) {
       foreach ($extensions as $extension) {
-        $filepath = drupal_get_path('module', 'libraries_test') . "/example/$name.$extension";
+        $filepath = drupal_get_path('module', 'libraries') . "/tests/example/$name.$extension";
         // JavaScript and CSS files appear as full URLs and with an appended
         // query string.
         if (in_array($extension, array('js', 'css'))) {
@@ -469,6 +469,7 @@ class LibrariesWebTest extends WebTestBase {
         }
         $raw = $html[$extension][0] . $filepath . $html[$extension][1];
         if ($expected) {
+debug($raw);
           $this->assertRaw($raw, "$label$name.$extension found.");
         }
         else {

@@ -50,17 +50,35 @@ class LibraryInfoDiscoveryTest extends UnitTestBase {
 
     // Test AnnotatedLibraryClassDiscovery::getAllLibraryInfo().
     $all_expected = array(
-      'Example' => array(
-        'name' => 'Example',
-        'label' => 'Example test library',
+      'NotInstalled' => array(
+        'label' => 'Test library with missing library files',
         'vendor' => 'example_vendor',
         'package' => 'example_package',
+        'name' => 'NotInstalled',
+      ),
+      'Disabled' => array(
+        'label' => 'Disabled test library',
+        'vendor' => 'example_vendor',
+        'package' => 'example_package',
+        'name' => 'Disabled',
+      ),
+      'IncompatibleVersion' => array(
+        'label' => 'Test library with incompatible version',
+        'vendor' => 'example_vendor',
+        'package' => 'example_package',
+        'name' => 'IncompatibleVersion',
+      ),
+      'Enabled' => array(
+        'label' => 'Enabled test library',
+        'vendor' => 'example_vendor',
+        'package' => 'example_package',
+        'name' => 'Enabled',
       ),
     );
     $this->assertEqual($discovery->getAllLibraryInfo(), $all_expected);
 
     // Test AnnotatedLibraryClassDiscovery::getLibraryInfo().
-    foreach ($expected as $name => $expected) {
+    foreach ($all_expected as $name => $expected) {
       $this->assertEqual($discovery->getLibraryInfo($name), $expected);
     }
   }

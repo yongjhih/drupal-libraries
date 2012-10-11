@@ -68,19 +68,6 @@ interface LibraryInterface {
   public function install();
 
   /**
-   * Enables the library.
-   *
-   * For JavaScript or CSS libraries, which are loaded on-demand, nothing needs
-   * to be done when enabling. PHP libraries that provide autoloadable classes,
-   * on the other hand, should use this method to register their namespaces.
-   * LibraryBase supports defining a $namespaces class variable and registers
-   * the provided namespaces automatically.
-   *
-   * @see \Drupal\libraries\Library\LibraryBase::enable()
-   */
-  public function enable();
-
-  /**
    * Returns the version of the library.
    *
    * Because Drupal modules and themes that integrate with an external library
@@ -99,4 +86,24 @@ interface LibraryInterface {
    * @see \Drupal\libraries\Library\LibraryBase::getVersionFromFile()
    */
   public function getVersion();
+
+  /**
+   * Enables the library.
+   *
+   * For JavaScript or CSS libraries, which are loaded on-demand, nothing needs
+   * to be done when enabling. PHP libraries that provide autoloadable classes,
+   * on the other hand, should use this method to register their namespaces.
+   * LibraryBase supports defining a $namespaces class variable and registers
+   * the provided namespaces automatically.
+   *
+   * @see \Drupal\libraries\Library\LibraryBase::enable()
+   */
+  public function enable();
+
+  /**
+   * Disables the library.
+   *
+   * @see \Drupal\libraries\Library\LibraryBase::disable()
+   */
+  public function disable();
 }

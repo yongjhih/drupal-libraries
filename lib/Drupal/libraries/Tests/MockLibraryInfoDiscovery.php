@@ -18,6 +18,8 @@ class MockLibraryInfoDiscovery implements LibraryInfoDiscoveryInterface {
 
   /**
    * Static library information to return.
+   *
+   * @var array
    */
   protected $libraries;
 

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\libraries\Tests\Library\Example.
+ * Definition of Drupal\libraries\Tests\Library\IncompatibleVersion.
  */
 
 namespace Drupal\Library;
@@ -11,11 +11,10 @@ use Drupal\libraries\Annotation\Library;
 
 /**
  * @Library(
- *   label = "Example test library",
+ *   label = "Test library with incompatible version",
  *   vendor = "example_vendor",
  *   package = "example_package"
  * )
  */
-class Example {
-  protected $dir = 'test';
-}
+class IncompatibleVersion extends TestLibraryBase {}
+

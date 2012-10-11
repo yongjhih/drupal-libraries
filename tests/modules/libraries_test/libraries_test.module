@@ -6,6 +6,15 @@
  */
 
 /**
+ * Implements hook_system_info_alter().
+ */
+function libraries_test_system_info_alter(&$info, $file, $type) {
+  if ($file->name == 'libraries_test_module_dependency') {
+    $info['hidden'] = FALSE;
+  }
+}
+
+/**
  * Implements hook_libraries_info().
  */
 function libraries_test_libraries_info() {
@@ -289,7 +298,7 @@ function libraries_test_libraries_info() {
  * Implements hook_libraries_info_file_paths()
  */
 function libraries_test_libraries_info_file_paths() {
-  return array(drupal_get_path('module', 'libraries_test') . '/example');
+  return array(drupal_get_path('module', 'libraries') . '/tests/example');
 }
 
 /**

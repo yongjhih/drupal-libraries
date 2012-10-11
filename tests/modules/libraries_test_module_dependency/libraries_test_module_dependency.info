@@ -1,0 +1,10 @@
+name = Libraries test module dependency
+description = Tests dependency handling for modules that depend on libraries.
+core = 8.x
+hidden = TRUE
+dependencies[] = libraries
+library dependencies[] = Enabled
+library dependencies[] = Disabled
+library dependencies[] = IncompatibleVersion (>= 1.1)
+library dependencies[] = NotInstalled
+library dependencies[] = MissingInfo

@@ -6,6 +6,54 @@
  */
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function libraries_form_system_modules_alter(&$form, &$form_alter) {
+  // Get current list of modules.
+  $files = system_rebuild_module_data();
+
+  // Find modules that depend on libraries.
+  $dependencies = array();
+  foreach ($files as $filename => $file) {
+    if (empty($file->info['hidden']) && !empty($file->info['library dependencies'])) {
+      // Add information about required libraries to the module information.
+      foreach ($file->info['library dependencies'] as $dependency) {
+        $dependency = drupal_parse_dependency($dependency);
+        $name = $dependency['name'];
+        $library_manager = drupal_container()->get('libraries.library_manager');
+
+        // If library information is available, use the label in the dependency
+        // information.
+        if ($info = $library_manager->getLibraryInfo($name)) {
+          $library = $library_manager->getLibraryInstance($name);
+          if ($library->isInstalled()) {
+            if (!drupal_check_incompatibility($dependency, $library->getVersion())) {
+              if ($library_manager->isEnabled($name)) {
+                $requires = t('@library (Library) (<span class="admin-enabled">enabled</span>)', array('@library' => $info['label']));
+              }
+              else {
+                $requires = t('@library (Library) (<span class="admin-disabled">disabled</span>)', array('@library' => $info['label']));
+              }
+            }
+            else {
+              $requires = t('@library (Library) (<span class="admin-missing">incompatible version</span>)', array('@library' => $info['label']));
+            }
+          }
+          else {
+            $requires = t('@library (Library) (<span class="admin-missing">missing files</span>)', array('@library' => $info['label']));
+          }
+        }
+        else  {
+          $requires = t('@library (Library) (<span class="admin-missing">missing information</span>)', array('@library' => $name));
+        }
+
+        $form['modules'][$file->info['package']][$filename]['#requires'][] = $requires;
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_flush_caches().
  */
 function libraries_flush_caches() {

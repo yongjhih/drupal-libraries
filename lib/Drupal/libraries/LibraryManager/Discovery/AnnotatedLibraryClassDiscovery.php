@@ -23,7 +23,7 @@ class AnnotatedLibraryClassDiscovery implements LibraryInfoDiscoveryInterface {
   /**
    * A list of paths to search for library classes.
    *
-   * @var array|\Traversable
+   * @var array|object|\Traversable
    */
   protected $paths = array();
 

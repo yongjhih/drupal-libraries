@@ -39,6 +39,7 @@ class LibrariesBundle extends Bundle {
     $container->register('libraries.library_manager.discovery', 'Drupal\libraries\LibraryManager\Discovery\AnnotatedLibraryClassDiscovery')
       ->addArgument($class_paths);
     $container->register('libraries.library_manager', 'Drupal\libraries\LibraryManager\DefaultLibraryManager')
-      ->addArgument(new Reference('libraries.library_manager.discovery'));
+      ->addArgument(new Reference('libraries.library_manager.discovery'))
+      ->addArgument(new Reference('state.storage'));
   }
 }
