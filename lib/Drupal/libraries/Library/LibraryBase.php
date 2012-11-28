@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of \Drupal\libraries\Library\LibraryBase.
+ * Contains \Drupal\libraries\Library\LibraryBase.
  */
 
 namespace Drupal\libraries\Library;

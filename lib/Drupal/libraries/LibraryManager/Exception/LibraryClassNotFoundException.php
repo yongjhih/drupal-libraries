@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Definition of \Drupal\libraries\LibraryManager\Exception\LibraryClassNotFoundException.
+ * Contains \Drupal\libraries\LibraryManager\Exception\LibraryClassNotFoundException.
  */
 
 namespace Drupal\libraries\LibraryManager\Exception;

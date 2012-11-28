@@ -2,18 +2,25 @@
 
 /**
  * @file
- * Definition of \Drupal\libraries\Tests\LibraryInfoDiscoveryTest.
+ * Contains \Drupal\libraries\Tests\LibraryInfoDiscoveryTest.
  */
 
 namespace Drupal\libraries\Tests;
 
-use Drupal\simpletest\UnitTestBase;
+use Drupal\simpletest\DrupalUnitTestBase;
 use Drupal\libraries\LibraryManager\Discovery\AnnotatedLibraryClassDiscovery;
 
 /**
  * Tests the discovery of library classes.
  */
-class LibraryInfoDiscoveryTest extends UnitTestBase {
+class LibraryInfoDiscoveryTest extends DrupalUnitTestBase {
+
+  /**
+   * An array of modules to install.
+   *
+   * @var array
+   */
+  static $modules = array('libraries', 'libraries_test');
 
   public static function getInfo() {
     return array(
@@ -23,18 +30,12 @@ class LibraryInfoDiscoveryTest extends UnitTestBase {
     );
   }
 
-  public function setUp() {
-    parent::setUp();
-    // Allow the Example library class to be found.
-    drupal_classloader_register('Library', drupal_get_path('module', 'libraries') . '/tests');
-  }
-
   /**
    * Tests AnnotatedLibraryClassDiscovery.
    */
   public function testAnnotatedLibraryClassDiscovery() {
     // Test that AnnotatedLibraryClassDiscovery does not throw errors when used
-    // without setting paths before.
+    // without setting paths.
     $discovery = new AnnotatedLibraryClassDiscovery(array());
     $this->assertIdentical($discovery->getAllLibraryInfo(), array());
     $this->assertIdentical($discovery->getLibraryInfo('Example'), NULL);

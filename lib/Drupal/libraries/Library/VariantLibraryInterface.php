@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of \Drupal\libraries\Library\VariantLibraryInterface.
+ * Contains \Drupal\libraries\Library\VariantLibraryInterface.
  */
 
 namespace Drupal\libraries\Library;

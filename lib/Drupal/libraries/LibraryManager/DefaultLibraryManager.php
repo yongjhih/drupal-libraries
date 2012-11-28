@@ -2,14 +2,15 @@
 
 /**
  * @file
- * Definition of \Drupal\libraries\LibraryManager\DefaultLibraryManager.
+ * Contains \Drupal\libraries\LibraryManager\DefaultLibraryManager.
  */
 
 namespace Drupal\libraries\LibraryManager;
 
-use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
-use Drupal\libraries\LibraryManager\Discovery\LibraryInfoDiscoveryInterface;
-use Drupal\libraries\LibraryManager\Exception\LibraryClassNotFoundException;
+use Drupal\Core\Config\ConfigFactory;
+use Drupal\libraries\LibraryManager\Discovery\AnnotatedLibraryClassDiscovery;
+use Drupal\libraries\LibraryManager\Mapper\StaticLibraryMapper;
+use Drupal\libraries\LibraryManager\StatusStorage\ConfigLibraryStatusStorage;
 
 /**
  * Provides a default library manager.
@@ -19,18 +20,25 @@ use Drupal\libraries\LibraryManager\Exception\LibraryClassNotFoundException;
 class DefaultLibraryManager implements LibraryManagerInterface {
 
   /**
-   * The library class discovery object to use.
+   * The library info discovery mechanism to use.
    *
-   * @var \Drupal\libraries\LibraryManager\Discovery\LibraryInfoDiscoveryInterface
+   * @var \Drupal\libraries\LibraryManager\Discovery\AnnotatedLibraryInfoDiscovery
    */
   protected $discovery;
 
   /**
-   * The key value store to track which libraries are enabled.
+   * The library factory to use.
    *
-   * @var \Drupal\Core\KeyValueStore\KeyValueStoreInterface
+   * @var \Drupal\libraries\LibraryManager\Factory\LibraryFactoryInterface
    */
-  protected $keyValueStore;
+  protected $mapper;
+
+  /**
+   * The status storage for library status information.
+   *
+   * @var \Drupal\libraries\LibraryManager\StatusStorage\LibraryStatusStorageInterface
+   */
+  protected $statusStorage;
 
   /**
    * An array of library instances.
@@ -41,10 +49,33 @@ class DefaultLibraryManager implements LibraryManagerInterface {
 
   /**
    * Constructs a DefaultLibraryManager object.
+   *
+   * @param \Drupal\Core\Config\ConfigFactory $configFactory
+   *   A configuration factory object.
    */
-  public function __construct(LibraryInfoDiscoveryInterface $discovery, KeyValueStoreInterface $keyValueStore) {
-    $this->discovery = $discovery;
-    $this->keyValueStore = $keyValueStore;
+  public function __construct(ConfigFactory $configFactory) {
+    // Build an array of root paths to search for both library classes and
+    // library files in declining order of precedence.
+    $paths = array(
+      DRUPAL_ROOT . '/' . conf_path(),
+      DRUPAL_ROOT,
+      DRUPAL_ROOT . '/' . drupal_get_path('profile', drupal_get_profile()),
+      DRUPAL_ROOT . '/core',
+    );
+
+    $map = function ($suffix) use ($paths) {
+      $append = function ($path) use ($suffix) {
+        return "$path/$suffix";
+      };
+      return array_map($append, $paths);
+    };
+
+    $class_paths = $map('lib');
+    $library_paths = $map('libraries');
+
+    $this->discovery = new AnnotatedLibraryClassDiscovery($class_paths);
+    $this->mapper = new StaticLibraryMapper();
+    $this->statusStorage = new ConfigLibraryStatusStorage($configFactory->get('libraries.library'));
   }
 
   /**
@@ -62,40 +93,72 @@ class DefaultLibraryManager implements LibraryManagerInterface {
   }
 
   /**
-   * Implements LibraryManagerInterface::getLibraryInstance().
+   * Implements LibraryManagerInterface::createLibraryInstance().
    */
   public function getLibraryInstance($name) {
-    if (!isset($this->instances[$name])) {
-      $class = "Drupal\\Library\\$name";
-      $this->instances[$name] = new $class();
-    }
-    return $this->instances[$name];
+    return $this->mapper->getLibraryInstance($name);
   }
 
   /**
    * Implements LibraryManagerInterface::isEnabled().
    */
   public function isEnabled($name) {
-    return in_array($name, $this->keyValueStore->get('libraries.enabled_libraries') ?: array());
+    return $this->statusStorage->isEnabled($name);
   }
 
   /**
    * Implements LibraryManagerInterface::enable().
    */
   public function enable($name) {
-    $enabled_libraries = $this->keyValueStore->get('libraries.enabled_libraries') ?: array();
-    $enabled_libraries[$name] = $name;
-    $this->keyValueStore->set('libraries.enabled_libraries', $enabled_libraries);
-
-    $this->getLibraryInstance($name)->enable();
+    if (!$this->statusStorage->isEnabled()) {
+      $this->statusStorage->setEnabled($name);
+      $library = $this->getLibraryInstance($name);
+      if ($library instanceof VariantLibraryInterface) {
+        $info = $this->getLibraryInfo($name);
+        if (isset($info['default variant'])) {
+          $this->setActiveVariant($name);
+        }
+      }
+      $library->enable();
+    }
   }
 
+  /**
+   * Implements LibraryManagerInterface::disabled().
+   */
   public function disable($name) {
-    $enabled_libraries = $this->keyValueStore->get('libraries.enabled_libraries') ?: array();
-    unset($enabled_libraries[$name]);
-    $this->keyValueStore->set('libraries.enabled_libraries', $enabled_libraries);
-
-    $this->getLibraryInstance($name)->disable();
+    if ($this->statusStorage->isEnabled()) {
+      $this->statusStorage->setDisabled($name);
+      $library = $this->getLibraryInstance($name);
+      if ($library instanceof VariantLibraryInterface) {
+        $this->statusStorage->unsetVariant($name);
+      }
+      $library->disable();
+    }
   }
 
+  /**
+   * Implements LibraryManagerInterface::getVariantName().
+   */
+  public function getVariantName($name) {
+    $this->statusManager->getVariant($name);
+  }
+
+  /**
+   * Implements LibraryManagerInterface::getVariantLabel().
+   */
+  public function getVariantLabel($name) {
+    $variant_name = $this->statusStorage->getVariant($name);
+    if ($variant_name) {
+      $info = $this->discovery->getLibraryInfo($name);
+      return $info['variants'][$variant_name];
+    }
+  }
+
+  /**
+   * Implements LibraryManagerInterface::setVariant().
+   */
+  public function setVariant($name, $variant) {
+    $this->statusManager->setVariant($name, $variant);
+  }
 }

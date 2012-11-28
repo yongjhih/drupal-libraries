@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of \Drupal\libraries\LibraryManager\Discovery\AnnotatedLibraryClassDiscovery
+ * Contains \Drupal\libraries\LibraryManager\Discovery\AnnotatedLibraryClassDiscovery
  */
 
 namespace Drupal\libraries\LibraryManager\Discovery;
@@ -17,6 +17,9 @@ use Drupal\Component\Reflection\MockFileFinder;
  * Defines a discovery mechanism to find annotated library classes.
  *
  * @see \Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery
+ *
+ * @todo If http://drupal.org/node/1847002 gets in, utilize
+ *   AnnotatedClassDiscoveryBase.
  */
 class AnnotatedLibraryClassDiscovery implements LibraryInfoDiscoveryInterface {
 

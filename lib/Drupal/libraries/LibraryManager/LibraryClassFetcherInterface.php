@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of \Drupal\libraries\LibraryManager\LibraryClassFetcherInterface.php
+ * Contains \Drupal\libraries\LibraryManager\LibraryClassFetcherInterface.php
  */
 
 namespace Drupal\libraries\LibraryManager;

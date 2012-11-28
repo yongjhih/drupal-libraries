@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of \Drupal\libraries\Library\Exception\InvalidVariantException.
+ * Contains \Drupal\libraries\Library\Exception\InvalidVariantException.
  */
 
 namespace Drupal\libraries\Library\Exception;

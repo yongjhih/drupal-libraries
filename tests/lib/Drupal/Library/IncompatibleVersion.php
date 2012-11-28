@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\libraries\Tests\Library\IncompatibleVersion.
+ * Contains \Drupal\libraries\Tests\Library\IncompatibleVersion.
  */
 
 namespace Drupal\Library;

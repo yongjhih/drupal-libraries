@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of \Drupal\libraries\LibraryManager\LibraryInfoDiscoveryInterface.php
+ * Contains \Drupal\libraries\LibraryManager\LibraryInfoDiscoveryInterface.php
  */
 
 namespace Drupal\libraries\LibraryManager\Discovery;

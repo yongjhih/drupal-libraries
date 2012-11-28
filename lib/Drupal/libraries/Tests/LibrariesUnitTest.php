@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of \Drupal\libraries\Tests\LibrariesUnitTest.
+ * Contains \Drupal\libraries\Tests\LibrariesUnitTest.
  */
 
 namespace Drupal\libraries\Tests;

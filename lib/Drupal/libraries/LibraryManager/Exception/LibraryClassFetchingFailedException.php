@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Definition of \Drupal\libraries\LibraryManager\Exception\LibraryClassFetchingFailedException.
+ * Contains \Drupal\libraries\LibraryManager\Exception\LibraryClassFetchingFailedException.
  */
 
 namespace Drupal\libraries\LibraryManager\Exception;

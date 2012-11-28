@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of \Drupal\libraries\Tests\ModuleLibraryDependencyTest.
+ * Contains \Drupal\libraries\Tests\ModuleLibraryDependencyTest.
  */
 
 namespace Drupal\libraries\Tests;
@@ -13,6 +13,12 @@ use Drupal\simpletest\WebTestBase;
  * Tests that modules that depend on libraries are handled correctly.
  */
 class ModuleLibraryDependencyTest extends WebTestBase {
+
+  /**
+   * An array of modules to install.
+   *
+   * @var array
+   */
   static $modules = array('libraries', 'libraries_test');
 
   public static function getInfo() {
@@ -25,22 +31,18 @@ class ModuleLibraryDependencyTest extends WebTestBase {
 
   public function setUp() {
     parent::setUp();
-    // Allow the test library classes to be autoloaded.
-    drupal_classloader_register('Library', drupal_get_path('module', 'libraries') . '/tests');
-    // Make the library manager discover the test library classes.
-    $test_path = implode(DIRECTORY_SEPARATOR, array(
-      DRUPAL_ROOT,
-      drupal_get_path('module', 'libraries'),
-      'tests',
-      'lib',
-    ));
-    drupal_container()->getDefinition('libraries.library_manager.discovery')->replaceArgument(0, array($test_path));
+
     $admin_user = $this->drupalCreateUser(array('administer modules'));
     $this->drupalLogin($admin_user);
   }
 
   public function testModulePage() {
     $this->drupalGet('admin/modules');
+    $this->assertRaw('Enabled test library (Library) (<span class="admin-enabled">enabled</span>)');
+    $this->assertRaw('Disabled test library (Library) (<span class="admin-disabled">disabled</span>)');
+    $this->assertRaw('Test library with incompatible version (Library) (<span class="admin-missing">incompatible version</span>)');
+    $this->assertRaw('Test library with missing library files (Library) (<span class="admin-missing">missing files</span>)');
+    $this->assertRaw('MissingInfo (Library) (<span class="admin-missing">missing information</span>)');
   }
 
 }

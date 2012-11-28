@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\libraries\Tests\Library\NotInstalled.
+ * Contains \Drupal\libraries\Tests\Library\NotInstalled.
  */
 
 namespace Drupal\Library;

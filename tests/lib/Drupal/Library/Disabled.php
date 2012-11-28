@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\libraries\Tests\Library\Disabled.
+ * Contains \Drupal\libraries\Tests\Library\Disabled.
  */
 
 namespace Drupal\Library;

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of \Drupal\libraries\Library\Exception\VariantUndeterminedException.
+ * Contains \Drupal\libraries\Library\Exception\VariantUndeterminedException.
  */
 
 namespace Drupal\libraries\Library\Exception;

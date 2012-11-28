@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of \Drupal\libraries\Library\Exception\LibraryException.
+ * Contains \Drupal\libraries\Library\Exception\LibraryException.
  */
 
 namespace Drupal\libraries\Library\Exception;

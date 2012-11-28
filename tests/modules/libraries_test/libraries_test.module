@@ -6,6 +6,15 @@
  */
 
 /**
+ * Implements hook_init().
+ *
+ * @todo Find a less hacky way to do this.
+ */
+function libraries_test_init() {
+  drupal_classloader_register('Library', drupal_get_path('module', 'libraries') . '/tests');
+}
+
+/**
  * Implements hook_system_info_alter().
  */
 function libraries_test_system_info_alter(&$info, $file, $type) {
