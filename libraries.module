@@ -5,8 +5,6 @@
  * External library handling for Drupal modules.
  */
 
-use Symfony\Component\DependencyInjection\Reference;
-
 /**
  * Implements hook_form_FORM_ID_alter().
  *
