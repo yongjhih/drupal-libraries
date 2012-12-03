@@ -16,11 +16,6 @@ interface LibraryStatusStorageInterface {
   /**
    * Checks whether a given library is enabled.
    *
-   * Whether a library is enabled or not depends on whether a module or theme
-   * depends on it. Therefore, the library class itself does not know whether it
-   * is enabled or not, but instead we keep track of this in the library
-   * manager.
-   *
    * @param string $name
    *   The machine-readable name of the library.
    *

@@ -54,15 +54,9 @@ class DefaultLibraryManager implements LibraryManagerInterface {
    *   A configuration factory object.
    */
   public function __construct(ConfigFactory $configFactory) {
-    // Build an array of root paths to search for both library classes and
-    // library files in declining order of precedence.
-    $paths = array(
-      DRUPAL_ROOT . '/' . conf_path(),
-      DRUPAL_ROOT,
-      DRUPAL_ROOT . '/' . drupal_get_path('profile', drupal_get_profile()),
-      DRUPAL_ROOT . '/core',
-    );
-
+    // @todo Use this anonymous function to also build an array of paths to
+    //  search for library files.
+    $paths = $this->getPaths();
     $map = function ($suffix) use ($paths) {
       $append = function ($path) use ($suffix) {
         return "$path/$suffix";
@@ -70,10 +64,7 @@ class DefaultLibraryManager implements LibraryManagerInterface {
       return array_map($append, $paths);
     };
 
-    $class_paths = $map('lib');
-    $library_paths = $map('libraries');
-
-    $this->discovery = new AnnotatedLibraryClassDiscovery($class_paths);
+    $this->discovery = new AnnotatedLibraryClassDiscovery($map('lib'));
     $this->mapper = new StaticLibraryMapper();
     $this->statusStorage = new ConfigLibraryStatusStorage($configFactory->get('libraries.library'));
   }
@@ -161,4 +152,25 @@ class DefaultLibraryManager implements LibraryManagerInterface {
   public function setVariant($name, $variant) {
     $this->statusManager->setVariant($name, $variant);
   }
+
+  /**
+   * Returns an array of paths to search for library classes and files.
+   *
+   * Separating this out into a function allows library functionality to be
+   * tested, even though in tests we can never assume library classes or files
+   * to exist in the locations where they would be found.
+   *
+   * @return array
+   *
+   * @see \Drupal\libraries\Tests\TestLibraryManager::getPaths()
+   */
+  protected function getPaths() {
+    return array(
+      DRUPAL_ROOT . '/' . conf_path(),
+      DRUPAL_ROOT,
+      DRUPAL_ROOT . '/' . drupal_get_path('profile', drupal_get_profile()),
+      DRUPAL_ROOT . '/core',
+    );
+  }
 }
+

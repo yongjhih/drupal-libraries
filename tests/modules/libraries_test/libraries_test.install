@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * Install, uninstall, and update functions for libraries_test.module
+ */
+
+/**
+ * Implements hook_enable().
+ *
+ * @todo Re-visit whether it is safe to use the library manager here instead of
+ *   directly accessing the configuration object.
+ */
+function libraries_test_enable() {
+  config('libraries.library')->set('enabled', array('Enabled'))->save();
+}
+
+/**
+ * Implements hook_disable().
+ *
+ * @todo See libraries_test_enable()
+ * @todo Re-visit usage of the ternary operator per
+ *   http://drupal.org/node/1838368
+ */
+function libraries_test_disable() {
+  $library_status_configuration = config('libraries.library');
+  $enabled = array_diff(($library_status_configuration->get('enabled') ?: array()), array('Enabled'));
+  $library_status_configuration->set('enabled', $enabled)->save();
+}
+

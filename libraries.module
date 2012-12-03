@@ -14,42 +14,43 @@
  *
  * @todo Implement support for 'library suggestions' in info files.
  * @todo Instead of re-using the core CSS classes, use a dedicated one for each
- *   case, and style them appropriately
+ *   case, and style them appropriately.
  */
 function libraries_form_system_modules_alter(&$form, &$form_alter) {
-  // Get current list of modules.
-  $files = system_rebuild_module_data();
-
   $library_manager = drupal_container()->get('libraries.library_manager');
 
-  // Find modules that depend on libraries.
-  $dependencies = array();
-  foreach ($files as $filename => $file) {
-    if (empty($file->info['hidden']) && !empty($file->info['library dependencies'])) {
-      // Add information about required libraries to the module information.
-      foreach ($file->info['library dependencies'] as $dependency) {
-        $dependency = drupal_parse_dependency($dependency);
-        $name = $dependency['name'];
+  // In case the list of modules is being displayed, show library information for modules.
+  if (!empty($form_state['storage'])) {
+    // Get the current list of modules.
+    $files = system_rebuild_module_data();
+    $dependencies = array();
+    foreach ($files as $filename => $file) {
+      if (empty($file->info['hidden']) && !empty($file->info['library dependencies'])) {
+        // Add information about required libraries to the module information.
+        foreach ($file->info['library dependencies'] as $dependency) {
+          $dependency = drupal_parse_dependency($dependency);
+          $name = $dependency['name'];
 
-        if (!$info = $library_manager->getLibraryInfo($name)) {
-          $requires = t('@library (Library) (<span class="admin-missing">missing information</span>)', array('@library' => $name));
-        }
-        // If library information is available, use the label in the dependency
-        // information.
-        elseif (($library = $library_manager->getLibraryInstance($name)) && !$library->isInstalled()) {
-          $requires = t('@library (Library) (<span class="admin-missing">missing files</span>)', array('@library' => $info['label']));
-        }
-        elseif (drupal_check_incompatibility($dependency, $library->getVersion())) {
-          $requires = t('@library (Library) (<span class="admin-missing">incompatible version</span>)', array('@library' => $info['label']));
-        }
-        elseif (!$library_manager->isEnabled($name)) {
-          $requires = t('@library (Library) (<span class="admin-disabled">disabled</span>)', array('@library' => $info['label']));
-        }
-        else {
-          $requires = t('@library (Library) (<span class="admin-enabled">enabled</span>)', array('@library' => $info['label']));
-        }
+          if (!$info = $library_manager->getLibraryInfo($name)) {
+            $requires = t('@library (Library) (<span class="admin-missing">missing information</span>)', array('@library' => $name));
+          }
+          // If library information is available, use the label in the dependency
+          // information.
+          elseif (($library = $library_manager->getLibraryInstance($name)) && !$library->isInstalled()) {
+            $requires = t('@library (Library) (<span class="admin-missing">missing files</span>)', array('@library' => $info['label']));
+          }
+         elseif (drupal_check_incompatibility($dependency, $library->getVersion())) {
+            $requires = t('@library (Library) (<span class="admin-missing">incompatible version</span>)', array('@library' => $info['label']));
+          }
+          elseif (!$library_manager->isEnabled($name)) {
+            $requires = t('@library (Library) (<span class="admin-disabled">disabled</span>)', array('@library' => $info['label']));
+          }
+          else {
+            $requires = t('@library (Library) (<span class="admin-enabled">enabled</span>)', array('@library' => $info['label']));
+          }
 
-        $form['modules'][$file->info['package']][$filename]['#requires'][] = $requires;
+          $form['modules'][$file->info['package']][$filename]['#requires'][] = $requires;
+        }
       }
     }
   }
@@ -68,24 +69,26 @@ function libraries_system_modules_submit($form, &$form_state) {
   // system_modules_submit() populated $form_state['storage']['modules']
   // with all modules that will be enabled.
   $rebuild = 0;
-  foreach ($form_state['storage']['modules'] as $module) {
-    if (!empty($files[$module]->info['library dependencies'])) {
-      foreach ($files[$module]->info['library dependencies'] as $dependency) {
-        ++$rebuild;
-        if (!$info = $library_manager->getLibraryInfo($name)) {
-          $form_state['storage']['libraries_missing_info'][] = $dependency;
-        }
-        elseif ($library = $library_manager->getLibraryInstance($name) && !$library->isInstalled()) {
-          $form_state['storage']['libraries_missing_files'][] = $dependency;
-        }
-        elseif (drupal_check_incompatibility($dependency, $library->getVersion())) {
-          $form_state['storage']['libraries_incompatible_version'][] = $dependency;
-        }
-        elseif (!$library_manager->isEnabled($name)) {
-          $form_state['storage']['libraries_disabled'][] = $dependency;
-        }
-        else {
-          --$rebuild;
+  if (isset($form_state['storage']['modules'])) {
+    foreach ($form_state['storage']['modules'] as $module) {
+      if (!empty($files[$module]->info['library dependencies'])) {
+        foreach ($files[$module]->info['library dependencies'] as $dependency) {
+          ++$rebuild;
+          if (!$info = $library_manager->getLibraryInfo($name)) {
+            $form_state['storage']['libraries_missing_info'][] = $dependency;
+          }
+          elseif ($library = $library_manager->getLibraryInstance($name) && !$library->isInstalled()) {
+            $form_state['storage']['libraries_missing_files'][] = $dependency;
+          }
+          elseif (drupal_check_incompatibility($dependency, $library->getVersion())) {
+            $form_state['storage']['libraries_incompatible_version'][] = $dependency;
+          }
+          elseif (!$library_manager->isEnabled($name)) {
+            $form_state['storage']['libraries_disabled'][] = $dependency;
+          }
+          else {
+            --$rebuild;
+          }
         }
       }
     }
@@ -96,17 +99,6 @@ function libraries_system_modules_submit($form, &$form_state) {
     return;
   }
 
-  // The only case we can handle here directly is enabling disabled libraries.
-  // For all other cases files need to be obtained using authorize.php.
-  if (!empty($form_state['storage']['libraries_disabled'])) {
-    foreach ($form_state['storage']['libraries_disabled'] as $disabled) {
-      $library_manager->enable($disabled);
-    }
-  }
-
-  drupal_set_message(t('The following libraries were enabled: %libraries', array(
-    '%libraries' => implode(', ', $form_state['storage']['libraries_disabled']),
-  )));
 }
 
 /**

@@ -12,11 +12,6 @@ use Drupal\Core\Config\Config;
 /**
  * Provides a library status manager that stores library status in config.
  *
- * The 'libraries.library configuration object is analogous to the
- * 'system.module' and 'system.module.disabled' configuration objects
- * provided by system.module, except that both information is stored in
- * a single configuration object.
- *
  * @todo Re-visit usage of the ternary operator per
  *   http://drupal.org/node/1838368
  */
@@ -49,8 +44,7 @@ class ConfigLibraryStatusStorage implements LibraryStatusStorageInterface {
    * Implements LibraryStatusManagerInterface::setEnabled().
    */
   public function setEnabled($name) {
-    $enabled = $this->config->get('enabled') ?: array();
-    $enabled[] = $name;
+    $enabled = ($this->config->get('enabled') ?: array()) + array($name);
     $this->config->set('enabled', $enabled)->save();
   }
 
@@ -59,12 +53,7 @@ class ConfigLibraryStatusStorage implements LibraryStatusStorageInterface {
    */
   public function setDisabled($name) {
     $enabled = array_diff(($this->config->get('enabled') ?: array()), array($name));
-    $this->config->set('enabled', $enabled);
-
-    $disabled = ($this->config->get('disabled') ?: array()) + array($name);
-    $this->config->set('disabled', $disabled);
-
-    $this->config->save();
+    $this->config->set('enabled', $enabled)->save();
   }
 
   /**
