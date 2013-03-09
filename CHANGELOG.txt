@@ -1,5 +1,5 @@
 
-Libraries 7.x-2.x, xxxx-xx-xx
+Libraries 7.x-2.1, 2013-03-09
 -----------------------------
 #1937446 by Pol, tstoeckler: Add a 'pre-dependencies-load' callback group.
 #1775668 by tstoeckler: Fix bogus assertion message in assertLibraryFiles().
