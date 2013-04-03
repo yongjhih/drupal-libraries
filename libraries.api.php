@@ -299,7 +299,7 @@ function hook_libraries_info() {
         'mymodule_example_libraries_postdetect_callback',
       ),
       // Called before the library's dependencies are loaded.
-      'pre-dependencie-load' => array(
+      'pre-dependencies-load' => array(
         'mymodule_example_libraries_pre_dependencies_load_callback',
       ),
       // Called before the library is loaded.
