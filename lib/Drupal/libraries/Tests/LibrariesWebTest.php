@@ -107,11 +107,14 @@ class LibrariesWebTest extends WebTestBase {
    */
   function testLibrariesScanInfoFiles() {
     $expected = array('example_info_file' => (object) array(
-      'uri' => drupal_get_path('module', 'libraries') . '/tests/example/example_info_file.libraries.info',
-      'filename' => 'example_info_file.libraries.info',
-      'name' => 'example_info_file.libraries',
+      'uri' => drupal_get_path('module', 'libraries') . '/tests/example/example_info_file.libraries.info.yml',
+      'filename' => 'example_info_file.libraries.info.yml',
+      'name' => 'example_info_file.libraries.info',
     ));
-    $this->assertEqual(libraries_scan_info_files(), $expected, 'libraries_scan_info_files() correctly finds the example info file.');
+    $actual = libraries_scan_info_files();
+    $this->verbose('Expected:<pre>' . var_export($expected, TRUE) . '</pre>');
+    $this->verbose('Actual:<pre>' . var_export($actual, TRUE) . '</pre>');
+    $this->assertEqual($actual, $expected, 'libraries_scan_info_files() correctly finds the example info file.');
     $this->verbose('<pre>' . var_export(libraries_scan_info_files(), TRUE) . '</pre>');
   }
 
@@ -140,7 +143,7 @@ class LibrariesWebTest extends WebTestBase {
     // Test a library specified with an .info file gets detected.
     $expected = array(
       'name' => 'Example info file',
-      'info file' => drupal_get_path('module', 'libraries_test') . '/example/example_info_file.libraries.info',
+      'info file' => drupal_get_path('module', 'libraries') . '/tests/example/example_info_file.libraries.info.yml',
     );
     libraries_info_defaults($expected, 'example_info_file');
     $library = libraries_info('example_info_file');
@@ -451,7 +454,7 @@ class LibrariesWebTest extends WebTestBase {
     // DOM.
     $html = array(
       'js' => array('<script src="', '"></script>'),
-      'css' => array('@import url("', '");'),
+      'css' => array('<link rel="stylesheet" href="', '" media="all" />'),
       // PHP files do not get added to the DOM directly.
       // @see _libraries_test_load()
       'php' => array('<li>', '</li>'),
@@ -459,7 +462,7 @@ class LibrariesWebTest extends WebTestBase {
 
     foreach ($names as $name => $expected) {
       foreach ($extensions as $extension) {
-        $filepath = drupal_get_path('module', 'libraries_test') . "/example/$name.$extension";
+        $filepath = drupal_get_path('module', 'libraries') . "/tests/example/$name.$extension";
         // JavaScript and CSS files appear as full URLs and with an appended
         // query string.
         if (in_array($extension, array('js', 'css'))) {
@@ -477,5 +480,4 @@ class LibrariesWebTest extends WebTestBase {
       }
     }
   }
-
 }

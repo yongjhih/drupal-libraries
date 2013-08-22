@@ -289,7 +289,7 @@ function libraries_test_libraries_info() {
  * Implements hook_libraries_info_file_paths()
  */
 function libraries_test_libraries_info_file_paths() {
-  return array(drupal_get_path('module', 'libraries_test') . '/example');
+  return array(drupal_get_path('module', 'libraries') . '/tests/example');
 }
 
 /**
@@ -467,86 +467,29 @@ function _libraries_test_callback(&$library, $version, $variant, $group) {
  * Implements hook_menu().
  */
 function libraries_test_menu() {
-  $base = array(
-    'page callback' => '_libraries_test_load',
-    'access callback' => TRUE,
-  );
-  $items['libraries_test/files'] = $base + array(
+  $items['libraries_test/files'] = array(
     'title' => 'Test files',
-    'page arguments' => array('example_files'),
+    'route_name' => 'libraries_test_files',
   );
-  $items['libraries_test/integration_files'] = $base + array(
+  $items['libraries_test/integration_files'] = array(
     'title' => 'Test integration files',
-    'page arguments' => array('example_integration_files'),
+    'route_name' => 'libraries_test_integration_files',
   );
-  $items['libraries_test/versions'] = $base + array(
+  $items['libraries_test/versions'] = array(
     'title' => 'Test version loading',
-    'page arguments' => array('example_versions'),
+    'route_name' => 'libraries_test_versions',
   );
-  $items['libraries_test/variant'] = $base + array(
+  $items['libraries_test/variant'] = array(
     'title' => 'Test variant loading',
-    'page arguments' => array('example_variant', 'example_variant'),
+    'route_name' => 'libraries_test_variant',
   );
-  $items['libraries_test/versions_and_variants'] = $base + array(
+  $items['libraries_test/versions_and_variants'] = array(
     'title' => 'Test concurrent version and variant loading',
-    'page arguments' => array('example_versions_and_variants', 'example_variant_2'),
+    'route_name' => 'libraries_test_versions_and_variants',
   );
-  $items['libraries_test/cache'] = $base + array(
+  $items['libraries_test/cache'] = array(
     'title' => 'Test caching of library information',
-    'page arguments' => array('example_callback'),
+    'route_name' => 'libraries_test_cache',
   );
   return $items;
-}
-
-/**
- * Loads a specified library (variant) for testing.
- *
- * JavaScript and CSS files can be checked directly by SimpleTest, so we only
- * need to manually check for PHP files. We provide information about the loaded
- * JavaScript and CSS files for easier debugging. See example/README.txt for
- * more information.
- */
-function _libraries_test_load($library, $variant = NULL) {
-  libraries_load($library, $variant);
-  // JavaScript and CSS files can be checked directly by SimpleTest, so we only
-  // need to manually check for PHP files.
-  $output = '';
-
-  // For easer debugging of JS loading, a text is shown that the JavaScript will
-  // replace.
-  $output .= '<h2>JavaScript</h2>';
-  $output .= '<div class="libraries-test-javascript">';
-  $output .= 'If this text shows up, no JavaScript test file was loaded.';
-  $output .= '</div>';
-
-  // For easier debugging of CSS loading, the loaded CSS files will color the
-  // following text.
-  $output .= '<h2>CSS</h2>';
-  $output .= '<div class="libraries-test-css">';
-  $output .= 'If one of the CSS test files has been loaded, this text will be colored:';
-  $output .= '<ul>';
-  // Do not reference the actual CSS files (i.e. including '.css'), because that
-  // breaks testing.
-  $output .= '<li>example_1: red</li>';
-  $output .= '<li>example_2: green</li>';
-  $output .= '<li>example_3: orange</li>';
-  $output .= '<li>example_4: blue</li>';
-  $output .= '<li>libraries_test: purple</li>';
-  $output .= '</ul>';
-  $output .= '</div>';
-
-  $output .= '<h2>PHP</h2>';
-  $output .= '<div class="libraries-test-php">';
-  $output .= 'The following is a list of all loaded test PHP files:';
-  $output .= '<ul>';
-  $files = get_included_files();
-  foreach ($files as $file) {
-    if (strpos($file, 'libraries/test') && !strpos($file, 'libraries_test.module')) {
-      $output .= '<li>' . str_replace(DRUPAL_ROOT . '/', '', $file) . '</li>';
-    }
-  }
-  $output .= '</ul>';
-  $output .= '</div>';
-
-  return $output;
 }
