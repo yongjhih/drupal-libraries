@@ -1,13 +1,14 @@
 
 Libraries 8.x-3.x, xxxx-xx-xx
 -----------------------------
-#2058371 by gordon: Re-port to Drupal 8 (.info.yml, controllers, cache service, ...)
+#2058371 by gordon: Re-port to Drupal 8 (.info.yml, controllers, cache service, ...).
 #1779714 by tstoeckler, klonos: Wrong filepath in README.txt and fix JS testing.
 #1167496 by tstoeckler: Remove leftover libraries.test file.
 #1167496 by tstoeckler, benshell: Port to Drupal 8.
 
 Libraries 7.x-3.x, xxxx-xx-xx
 -----------------------------
+#1844272 by tstoeckler, jweowu: Fix typos in libraries.api.php.
 #1775668 by tstoeckler: Fix bogus assertion message in assertLibraryFiles().
 #1773640 by tstoeckler: Use drupal_get_path() to find the profile directory.
 #1565426 by tstoeckler: Invoke hook_libraries_info() in enabled themes.
