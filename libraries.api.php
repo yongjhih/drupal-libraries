@@ -30,7 +30,7 @@
  *     changes of implementing modules and to support different versions of a
  *     library simultaneously (though only one version can be installed per
  *     site). A valid use-case is an external library whose version cannot be
- *     determined programatically.
+ *     determined programmatically.
  *   - version callback: (optional) The name of a function that detects and
  *     returns the full version string of the library. The first argument is
  *     always $library, an array containing all library information as described
@@ -45,7 +45,7 @@
  *     the version callback as a single $options parameter whose keys are the
  *     argument names (i.e. $options is identical to the specified array). If
  *     declared as an indexed array, the array values get passed to the version
- *     callback as seperate arguments in the order they were declared. The
+ *     callback as separate arguments in the order they were declared. The
  *     default version callback libraries_get_version() expects a single,
  *     associative array with named keys:
  *     - file: The filename to parse for the version, relative to the library
@@ -100,10 +100,10 @@
  *       available or not. The first argument is always $library, an array
  *       containing all library information as described here. The second
  *       argument is always a string containing the variant name. There are two
- *       ways to declare the variant callback's additinal arguments, either as a
+ *       ways to declare the variant callback's additional arguments, either as a
  *       single $options parameter or as multiple parameters, which correspond
  *       to the two ways to specify the argument values (see 'variant
- *       arguments'). If ommitted, the variant is expected to always be
+ *       arguments'). If omitted, the variant is expected to always be
  *       available.
  *     - variant arguments: A list of arguments to pass to the variant callback.
  *       Variant arguments can be declared either as an associative array whose
@@ -112,7 +112,7 @@
  *       the variant callback as a single $options parameter whose keys are the
  *       argument names (i.e. $options is identical to the specified array). If
  *       declared as an indexed array, the array values get passed to the
- *       variant callback as seperate arguments in the order they were declared.
+ *       variant callback as separate arguments in the order they were declared.
  *     Variants can be version-specific (see 'versions').
  *   - versions: (optional) An associative array of supported library versions.
  *     Naturally, libraries evolve over time and so do their APIs. In case a
