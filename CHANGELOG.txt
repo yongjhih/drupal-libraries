@@ -1,6 +1,7 @@
 
 Libraries 8.x-3.x, xxxx-xx-xx
 -----------------------------
+#2090323 by tstoeckler: Remove obsolete libraries_parse_dependency().
 #2090379 by tstoeckler: Change 'pattern' to 'path' in routing YAML file.
 #2058371 by gordon: Re-port to Drupal 8 (.info.yml, controllers, cache service, ...).
 #1779714 by tstoeckler, klonos: Wrong filepath in README.txt and fix JS testing.
