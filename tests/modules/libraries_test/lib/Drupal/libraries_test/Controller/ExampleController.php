@@ -7,10 +7,10 @@
 
 namespace Drupal\libraries_test\Controller;
 
-use Drupal\Core\Controller\ControllerInterface;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class ExampleController implements ControllerInterface {
+class ExampleController implements ContainerInjectionInterface {
   /**
    * Injects BookManager Service.
    */
