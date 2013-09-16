@@ -651,16 +651,6 @@ function libraries_load($name, $variant = NULL) {
  *   The number of loaded files.
  */
 function libraries_load_files($library) {
-  // Load integration files.
-  if (!empty($library['integration files'])) {
-    foreach ($library['integration files'] as $module => $files) {
-      libraries_load_files(array(
-        'files' => $files,
-        'path' => '',
-        'library path' => drupal_get_path('module', $module),
-      ));
-    }
-  }
 
   // Construct the full path to the library for later use.
   $path = $library['library path'];
@@ -709,6 +699,17 @@ function libraries_load_files($library) {
         require_once $file_path;
         $count++;
       }
+    }
+  }
+
+  // Load integration files.
+  if (!empty($library['integration files'])) {
+    foreach ($library['integration files'] as $module => $files) {
+      libraries_load_files(array(
+        'files' => $files,
+        'path' => '',
+        'library path' => drupal_get_path('module', $module),
+      ));
     }
   }
 
