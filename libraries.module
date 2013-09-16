@@ -9,6 +9,14 @@
  * Implements hook_flush_caches().
  */
 function libraries_flush_caches() {
+  // Clear static caches.
+  // We don't clear the 'libraries_load' static cache, because that could result
+  // in libraries that had been loaded before the cache flushing to be loaded
+  // again afterwards.
+  foreach (array('libraries_get_path', 'libraries_info') as $name) {
+    drupal_static_reset($name);
+  }
+
   // @todo When upgrading from 1.x, update.php attempts to flush caches before
   //   the cache table has been created.
   // @see http://drupal.org/node/1477932
