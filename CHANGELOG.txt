@@ -1,6 +1,7 @@
 
 Libraries 8.x-3.x, xxxx-xx-xx
 -----------------------------
+#2090351 by tstoeckler: Remove obsolete hook_flush_caches().
 #2090425 by tstoeckler: Adapt for renamed ControllerInterface.
 #2090323 by tstoeckler: Remove obsolete libraries_parse_dependency().
 #2090379 by tstoeckler: Change 'pattern' to 'path' in routing YAML file.
