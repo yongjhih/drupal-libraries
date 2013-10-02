@@ -166,6 +166,13 @@ function libraries_scan_info_files() {
  *   An array of library information, passed by reference.
  */
 function libraries_invoke($group, &$library) {
+  // When introducing new callback groups in newer versions, stale cached
+  // library information somehow reaches this point during the database update
+  // before clearing the library cache.
+  if (empty($library['callbacks'][$group])) {
+    return;
+  }
+
   foreach ($library['callbacks'][$group] as $callback) {
     libraries_traverse_library($library, $callback);
   }
