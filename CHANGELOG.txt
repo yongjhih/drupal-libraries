@@ -3,6 +3,7 @@ Libraries 7.x-3.x, xxxx-xx-xx
 -----------------------------
 #1938638 by tstoeckler: Remove unneeded check.
 
+
 Libraries 7.x-2.x, xxxx-xx-xx
 -----------------------------
 #2046919 by tstoeckler: Improve documentation around 'version callback'.
@@ -26,7 +27,6 @@ Libraries 7.x-2.0, 2012-07-29
 #1578618 by iamEAP: Fixed Fatal cache flush failure on major version upgrades.
 #1449346 by tstoeckler, sun: Clean-up libraries.test
 
-
 Libraries 7.x-2.0-alpha2, 2011-12-15
 ------------------------------------
 #1299076 by tstoeckler: Improve testing of JS, CSS, and PHP files.
@@ -35,7 +35,6 @@ Libraries 7.x-2.0-alpha2, 2011-12-15
 #1325524 by sun, Rob Loach, tstoeckler: Statically cache libraries_detect().
 #1321372 by Rob Loach: Provide a 'post-load' callback group.
 #1205854 by tstoeckler, sun: Test library caching.
-
 
 Libraries 7.x-2.0-alpha1, 2011-10-01
 ------------------------------------
@@ -78,20 +77,20 @@ by sun: Fixed testbot breaks upon .info file without .module file.
 Libraries 7.x-1.x, xxxx-xx-xx
 -----------------------------
 
-
 Libraries 7.x-1.0, 2010-01-27
 -----------------------------
 #743522 by sun: Ported to D7.
 
+
+Libraries 6.x-1.x, xxxx-xx-xx
+-----------------------------
 
 Libraries 6.x-1.0, 2010-01-27
 -----------------------------
 #1028744 by tstoeckler: Code clean-up.
 #496732 by tstoeckler, robphillips: Allow placing libraries in root directory.
 
-
 Libraries 6.x-1.0-alpha1, 2009-12-30
 ------------------------------------
 #480440 by markus_petrux: Fixed base_path() not applied to default library path.
 #320562 by sun: Added basic functions.
-
