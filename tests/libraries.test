@@ -303,6 +303,12 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $loaded = &drupal_static('libraries_load');
     $this->verbose('<pre>' . var_export($loaded, TRUE) . '</pre>');
     $this->assertEqual($loaded['example_dependency']['loaded'], 1, 'Dependency library is also loaded');
+
+    // Test that PHP files that have a local $path variable do not break library
+    // loading.
+    // @see _libraries_require_once()
+    $library = libraries_load('example_path_variable_override');
+    $this->assertEqual($library['loaded'], 2, 'PHP files cannot break library loading.');
   }
 
   /**

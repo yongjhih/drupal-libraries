@@ -287,6 +287,15 @@ function libraries_test_libraries_info() {
     'post-load callback' => 'not applied',
   );
 
+  $libraries['example_path_variable_override'] = array(
+    'name' => 'Example path variable override',
+    'library path' => drupal_get_path('module', 'libraries') . '/tests/example',
+    'version' => '1',
+    'files' => array(
+      'php' => array('example_1.php', 'example_2.php'),
+    ),
+  );
+
   return $libraries;
 }
 
