@@ -711,7 +711,7 @@ function libraries_load_files($library) {
     foreach ($library['files']['php'] as $file => $array) {
       $file_path = DRUPAL_ROOT . '/' . $path . '/' . $file;
       if (file_exists($file_path)) {
-        require_once $file_path;
+        _libraries_require_once($file_path);
         $count++;
       }
     }
@@ -730,6 +730,23 @@ function libraries_load_files($library) {
 
   return $count;
 }
+
+/**
+ * Wrapper function for require_once.
+ *
+ * A library file could set a $path variable in file scope. Requiring such a
+ * file directly in libraries_load_files() would lead to the local $path
+ * variable being overridden after the require_once statement. This would
+ * break loading further files. Therefore we use this trivial wrapper which has
+ * no local state that can be tampered with.
+ *
+ * @param $file_path
+ *   The file path of the file to require.
+ */
+function _libraries_require_once($file_path) {
+  require_once $file_path;
+}
+
 
 /**
  * Gets the version information from an arbitrary library.
