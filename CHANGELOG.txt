@@ -1,6 +1,7 @@
 
 Libraries 8.x-3.x, xxxx-xx-xx
 -----------------------------
+by tstoeckler: Provide required 'type' key in test library info file.
 #2090351 by tstoeckler: Remove obsolete hook_flush_caches().
 #2090425 by tstoeckler: Adapt for renamed ControllerInterface.
 #2090323 by tstoeckler: Remove obsolete libraries_parse_dependency().
