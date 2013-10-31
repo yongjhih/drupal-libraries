@@ -38,16 +38,19 @@
  *     arguments, either as a single $options parameter or as multiple
  *     parameters, which correspond to the two ways to specify the argument
  *     values (see 'version arguments'). Defaults to libraries_get_version().
- *   - version arguments: A list of arguments to pass to the version callback.
- *     Version arguments can be declared either as an associative array whose
- *     keys are the argument names or as an indexed array without specifying
- *     keys. If declared as an associative array, the arguments get passed to
- *     the version callback as a single $options parameter whose keys are the
- *     argument names (i.e. $options is identical to the specified array). If
- *     declared as an indexed array, the array values get passed to the version
- *     callback as separate arguments in the order they were declared. The
- *     default version callback libraries_get_version() expects a single,
- *     associative array with named keys:
+ *     Unless 'version' is declared or libraries_get_version() is being used as
+ *     a version callback, 'version callback' must be declared. In the latter
+ *     case, however, 'version arguments' must be declared in the specified way.
+ *   - version arguments: (optional) A list of arguments to pass to the version
+ *     callback. Version arguments can be declared either as an associative
+ *     array whose keys are the argument names or as an indexed array without
+ *     specifying keys. If declared as an associative array, the arguments get
+ *     passed to the version callback as a single $options parameter whose keys
+ *     are the argument names (i.e. $options is identical to the specified
+ *     array). If declared as an indexed array, the array values get passed to
+ *     the version callback as separate arguments in the order they were
+ *     declared. The default version callback libraries_get_version() expects a
+ *     single, associative array with named keys:
  *     - file: The filename to parse for the version, relative to the library
  *       path. For example: 'docs/changelog.txt'.
  *     - pattern: A string containing a regular expression (PCRE) to match the
@@ -60,6 +63,10 @@
  *     - cols: (optional) The maximum number of characters per line to take into
  *       account. Defaults to 200. In case of minified or compressed files, this
  *       prevents reading the entire file into memory.
+ *     Defaults to an empty array. 'version arguments' must be specified unless
+ *     'version' is declared or the specified 'version callback' does not
+ *     require any arguments. The latter might be the case with a
+ *     library-specific version callback, for example.
  *   - files: An associative array of library files to load. Supported keys are:
  *     - js: A list of JavaScript files to load, using the same syntax as Drupal
  *       core's hook_library().
