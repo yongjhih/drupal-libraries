@@ -460,24 +460,34 @@ class LibrariesWebTest extends WebTestBase {
       'php' => array('<li>', '</li>'),
     );
 
+    $html_expected = array();
+    $html_not_expected = array();
+
     foreach ($names as $name => $expected) {
       foreach ($extensions as $extension) {
         $filepath = drupal_get_path('module', 'libraries') . "/tests/example/$name.$extension";
         // JavaScript and CSS files appear as full URLs and with an appended
         // query string.
         if (in_array($extension, array('js', 'css'))) {
-          $filepath = url('', array('absolute' => TRUE)) . $filepath . '?' . variable_get('css_js_query_string');
+          $filepath = url('', array('absolute' => TRUE)) . $filepath;
+          $filepath .= '?' . \Drupal::state()->get('system.css_js_query_string') ?: '0';
           // If index.php is part of the generated URLs, we need to strip it.
           $filepath = str_replace('index.php/', '', $filepath);
         }
         $raw = $html[$extension][0] . $filepath . $html[$extension][1];
         if ($expected) {
+          $html_expected[] = check_plain($raw);
           $this->assertRaw($raw, "$label$name.$extension found.");
         }
         else {
+          $html_not_expected[] = check_plain($raw);
           $this->assertNoRaw($raw, "$label$name.$extension not found.");
         }
       }
     }
+
+    $html_expected = '<ul><li><pre>' . implode('</pre></li><li><pre>', $html_expected) . '</pre></li></ul>';
+    $html_not_expected = '<ul><li><pre>' . implode('</pre></li><li><pre>', $html_not_expected) . '</pre></li></ul>';
+    $this->verbose("Strings of HTML that are expected to be present:{$html_expected}Strings of HTML that are expected to not be present:{$html_not_expected}");
   }
 }

@@ -352,8 +352,18 @@ function &libraries_info($name = NULL) {
 
     // Gather information from .info files.
     // .info files override module definitions.
+    // In order to stop Drupal's extension and the Drupal.org packaging
+    // system from finding library info files we use the 'libraries.info.yml'
+    // file extension. Therefore, having a 'type' key, like info files of
+    // modules, themes, and profiles have, is superfluous.
+    // \Drupal\Core\Extension\InfoParser, however, enforces the existence of a
+    // 'type' key in info files. We therefore use Symfony's YAML parser
+    // directly.
+    // @todo Consider creating a dedicating InfoParser for library info files
+    //   similar to \Drupal\Core\Extension\InfoParser
+    $parser = new \Symfony\Component\Yaml\Parser();
     foreach (libraries_scan_info_files() as $machine_name => $file) {
-      $properties = drupal_parse_info_file($file->uri);
+      $properties = $parser->parse(file_get_contents($file->uri));
       $properties['info file'] = $file->uri;
       $libraries[$machine_name] = $properties;
     }
