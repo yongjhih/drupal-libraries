@@ -13,6 +13,18 @@ function libraries_test_theme_libraries_info() {
     'name' => 'Example theme',
     'theme_altered' => FALSE,
   );
+  $libraries['example_theme_integration_files'] = array(
+    'name' => 'Example theme integration file',
+    'library path' => drupal_get_path('module', 'libraries') . '/tests/libraries/example',
+    'version' => '1',
+    'integration files' => array(
+      'libraries_test_theme' => array(
+        'js' => array('libraries_test_theme.js'),
+        'css' => array('libraries_test_theme.css'),
+        'php' => array('libraries_test_theme.inc'),
+      ),
+    ),
+  );
   return $libraries;
 }
 
