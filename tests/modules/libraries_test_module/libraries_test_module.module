@@ -9,6 +9,12 @@
  * Implements hook_libraries_info().
  */
 function libraries_test_module_libraries_info() {
+  // Test library information gathering.
+  $libraries['example_module'] = array(
+    'name' => 'Example module',
+    'module_altered' => FALSE,
+  );
+
   // Test library detection.
   $libraries['example_missing'] = array(
     'name' => 'Example missing',
@@ -29,7 +35,6 @@ function libraries_test_module_libraries_info() {
       '2' => array(),
     ),
   );
-
   $libraries['example_supported_version'] = array(
     'name' => 'Example supported version',
     'library path' => drupal_get_path('module', 'libraries') . '/tests/libraries/example',
@@ -297,6 +302,13 @@ function libraries_test_module_libraries_info() {
   );
 
   return $libraries;
+}
+
+/**
+ * Implements hook_libraries_info_alter().
+ */
+function libraries_test_module_libraries_info_alter(&$libraries) {
+  $libraries['example_module']['module_altered'] = TRUE;
 }
 
 /**
@@ -575,4 +587,13 @@ function _libraries_test_module_load($library, $variant = NULL) {
   $output .= '</div>';
 
   return $output;
+}
+
+/**
+ * Implements hook_system_theme_info().
+ */
+function libraries_test_module_system_theme_info() {
+  $themes = array();
+  $themes['libraries_test_theme'] = drupal_get_path('module', 'libraries') . '/tests/themes/libraries_test_theme/libraries_test_theme.info';
+  return $themes;
 }
