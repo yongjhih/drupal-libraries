@@ -153,9 +153,23 @@
  *     Valid callback groups are:
  *     - info: Callbacks registered in this group are applied after the library
  *       information has been retrieved via hook_libraries_info() or info files.
+ *       At this point the following additional information is available:
+ *       - $library['info type']: How the library information was obtained. Can
+ *         be 'info file', 'module', or 'theme', depending on whether the
+ *         library information was obtained from an info file, an enabled module
+ *         or an enabled theme, respectively.
+ *       Additionally, one of the following three keys is available, depending
+ *       on the value of $library['info type'].
+ *       - $library['info file']: In case the library information was obtained
+ *         from an info file, the URI of the info file.
+ *       - $library['module']: In case the library was obtained from an enabled
+ *         module, the name of the providing module.
+ *       - $library['theme']: In case the library was obtained from an enabled
+ *         theme, the name of the providing theme.
  *     - pre-detect: Callbacks registered in this group are applied after the
  *       library path has been determined and before the version callback is
- *       invoked. At this point the following additional information is available:
+ *       invoked. At this point the following additional information is
+ *       available:
  *       - $library['library path']: The path on the file system to the library.
  *     - post-detect: Callbacks registered in this group are applied after the
  *       library has been successfully detected. At this point the library
