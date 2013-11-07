@@ -348,27 +348,31 @@ function &libraries_info($name = NULL) {
 
   if (!isset($libraries)) {
     $libraries = array();
-    // Gather information from hook_libraries_info().
+
+    // Gather information from hook_libraries_info() in enabled modules.
     foreach (module_implements('libraries_info') as $module) {
       foreach (module_invoke($module, 'libraries_info') as $machine_name => $properties) {
+        $properties['info type'] = 'module';
         $properties['module'] = $module;
         $libraries[$machine_name] = $properties;
       }
     }
+
     // Gather information from hook_libraries_info() in enabled themes.
-    // @see drupal_alter()
-    global $theme, $base_theme_info;
-    if (isset($theme)) {
-      $theme_keys = array();
-      foreach ($base_theme_info as $base) {
-        $theme_keys[] = $base->name;
-      }
-      $theme_keys[] = $theme;
-      foreach ($theme_keys as $theme_key) {
-        $function = $theme_key . '_' . 'libraries_info';
+    $themes = array();
+    foreach (list_themes() as $theme_name => $theme_info) {
+      if ($theme_info->status && file_exists(drupal_get_path('theme', $theme_name) . '/template.php')) {
+        // Collect a list of viable themes for re-use when calling the alter
+        // hook.
+        $themes[] = $theme_name;
+
+        include_once drupal_get_path('theme', $theme_name) . '/template.php';
+
+        $function = $theme_name . '_libraries_info';
         if (function_exists($function)) {
           foreach ($function() as $machine_name => $properties) {
-            $properties['theme'] = $theme_key;
+            $properties['info type'] = 'theme';
+            $properties['theme'] = $theme_name;
             $libraries[$machine_name] = $properties;
           }
         }
@@ -379,6 +383,7 @@ function &libraries_info($name = NULL) {
     // .info files override module definitions.
     foreach (libraries_scan_info_files() as $machine_name => $file) {
       $properties = drupal_parse_info_file($file->uri);
+      $properties['info type'] = 'info file';
       $properties['info file'] = $file->uri;
       $libraries[$machine_name] = $properties;
     }
@@ -388,8 +393,20 @@ function &libraries_info($name = NULL) {
       libraries_info_defaults($properties, $machine_name);
     }
 
-    // Allow modules to alter the registered libraries.
-    drupal_alter('libraries_info', $libraries);
+    // Allow enabled modules and themes to alter the registered libraries.
+    // drupal_alter() only takes the currently active theme into account, not
+    // all enabled themes.
+    foreach (module_implements('libraries_info_alter') as $module) {
+      $function = $module . '_libraries_info_alter';
+      $function($libraries);
+    }
+    foreach ($themes as $theme) {
+      $function = $theme . '_libraries_info_alter';
+      // The template.php file was included above.
+      if (function_exists($function)) {
+        $function($libraries);
+      }
+    }
 
     // Invoke callbacks in the 'info' group.
     foreach ($libraries as &$properties) {
