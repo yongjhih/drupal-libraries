@@ -73,6 +73,7 @@ class LibrariesTestCase extends DrupalWebTestCase {
 
   function setUp() {
     parent::setUp('libraries', 'libraries_test_module');
+    theme_enable(array('libraries_test_theme'));
   }
 
   /**
@@ -171,6 +172,21 @@ class LibrariesTestCase extends DrupalWebTestCase {
    * Tests libraries_info().
    */
   function testLibrariesInfo() {
+    // Test that modules can provide and alter library information.
+    $info = libraries_info();
+    $this->assertTrue(isset($info['example_module']));
+    $this->verbose('Library:<pre>' . var_export($info['example_module'], TRUE) . '</pre>');
+    $this->assertEqual($info['example_module']['info type'], 'module');
+    $this->assertEqual($info['example_module']['module'], 'libraries_test_module');
+    $this->assertTrue($info['example_module']['module_altered']);
+
+    // Test that themes can provide and alter library information.
+    $this->assertTrue(isset($info['example_theme']));
+    $this->verbose('Library:<pre>' . var_export($info['example_theme'], TRUE) . '</pre>');
+    $this->assertEqual($info['example_theme']['info type'], 'theme');
+    $this->assertEqual($info['example_theme']['theme'], 'libraries_test_theme');
+    $this->assertTrue($info['example_theme']['theme_altered']);
+
     // Test that library information is found correctly.
     $expected = array(
       'name' => 'Example files',
