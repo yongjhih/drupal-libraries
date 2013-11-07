@@ -81,8 +81,8 @@ function libraries_test_module_libraries_info() {
   // Test loading of integration files.
   // Normally added by the corresponding module via hook_libraries_info_alter(),
   // these files should be automatically loaded when the library is loaded.
-  $libraries['example_integration_files'] = array(
-    'name' => 'Example integration files',
+  $libraries['example_module_integration_files'] = array(
+    'name' => 'Example module integration files',
     'library path' => drupal_get_path('module', 'libraries') . '/tests/libraries/example',
     'version' => '1',
     'integration files' => array(
@@ -513,9 +513,13 @@ function libraries_test_module_menu() {
     'title' => 'Test files',
     'page arguments' => array('example_files'),
   );
-  $items['libraries-test-module/integration-files'] = $base + array(
-    'title' => 'Test integration files',
-    'page arguments' => array('example_integration_files'),
+  $items['libraries-test-module/module-integration-files'] = $base + array(
+    'title' => 'Test module integration files',
+    'page arguments' => array('example_module_integration_files'),
+  );
+  $items['libraries-test-module/theme-integration-files'] = $base + array(
+    'title' => 'Test theme integration files',
+    'page arguments' => array('example_theme_integration_files'),
   );
   $items['libraries-test-module/versions'] = $base + array(
     'title' => 'Test version loading',
@@ -570,6 +574,7 @@ function _libraries_test_module_load($library, $variant = NULL) {
   $output .= '<li>example_3: orange</li>';
   $output .= '<li>example_4: blue</li>';
   $output .= '<li>libraries_test_module: purple</li>';
+  $output .= '<li>libraries_test_theme: turquoise</li>';
   $output .= '</ul>';
   $output .= '</div>';
 
@@ -579,7 +584,7 @@ function _libraries_test_module_load($library, $variant = NULL) {
   $output .= '<ul>';
   $files = get_included_files();
   foreach ($files as $file) {
-    if (strpos($file, 'libraries/test') && !strpos($file, 'libraries_test_module.module')) {
+    if (strpos($file, 'libraries/test') && !strpos($file, 'libraries_test_module.module') && !strpos($file, 'template.php')) {
       $output .= '<li>' . str_replace(DRUPAL_ROOT . '/', '', $file) . '</li>';
     }
   }

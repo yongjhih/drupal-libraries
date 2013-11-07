@@ -459,10 +459,14 @@ class LibrariesTestCase extends DrupalWebTestCase {
     $this->assertLibraryFiles('example_1', 'File loading');
 
     // Test loading of integration files.
-    $this->drupalGet('libraries-test-module/integration-files');
-    $this->assertRaw('libraries_test_module.js', 'Integration file loading: libraries_test.js found');
-    $this->assertRaw('libraries_test_module.css', 'Integration file loading: libraries_test.css found');
-    $this->assertRaw('libraries_test_module.inc', 'Integration file loading: libraries_test.inc found');
+    $this->drupalGet('libraries-test-module/module-integration-files');
+    $this->assertRaw('libraries_test_module.js', 'Integration file loading: libraries_test_module.js found');
+    $this->assertRaw('libraries_test_module.css', 'Integration file loading: libraries_test_module.css found');
+    $this->assertRaw('libraries_test_module.inc', 'Integration file loading: libraries_test_module.inc found');
+    $this->drupalGet('libraries-test-module/theme-integration-files');
+    $this->assertRaw('libraries_test_theme.js', 'Integration file loading: libraries_test_theme.js found');
+    $this->assertRaw('libraries_test_theme.css', 'Integration file loading: libraries_test_theme.css found');
+    $this->assertRaw('libraries_test_theme.inc', 'Integration file loading: libraries_test_theme.inc found');
 
     // Test version overloading.
     $this->drupalGet('libraries-test-module/versions');

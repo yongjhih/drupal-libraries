@@ -744,12 +744,27 @@ function libraries_load_files($library) {
 
   // Load integration files.
   if (!empty($library['integration files'])) {
-    foreach ($library['integration files'] as $module => $files) {
-      libraries_load_files(array(
-        'files' => $files,
-        'path' => '',
-        'library path' => drupal_get_path('module', $module),
-      ));
+    $enabled_themes = array();
+    foreach (list_themes() as $theme_name => $theme) {
+      if ($theme->status) {
+        $enabled_themes[] = $theme_name;
+      }
+    }
+    foreach ($library['integration files'] as $provider => $files) {
+      if (module_exists($provider)) {
+        libraries_load_files(array(
+          'files' => $files,
+          'path' => '',
+          'library path' => drupal_get_path('module', $provider),
+        ));
+      }
+      elseif (in_array($provider, $enabled_themes)) {
+        libraries_load_files(array(
+          'files' => $files,
+          'path' => '',
+          'library path' => drupal_get_path('theme', $provider),
+        ));
+      }
     }
   }
 
