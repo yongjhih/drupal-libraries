@@ -1,6 +1,7 @@
 
 Libraries 7.x-2.x, xxxx-xx-xx
 -----------------------------
+#1876124 by tstoeckler: Prepare for adding a test theme.
 #1876124 by tstoeckler | whastings, fubhy: Fix hook_libraries_info() for themes.
 #2015721 by tstoeckler, CaptainHook: Protect against files overriding local variables.
 #2046919 by tstoeckler: Improve documentation around 'version callback'.
