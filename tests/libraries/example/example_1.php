@@ -11,5 +11,5 @@ $path = 'abc';
 /**
  * Dummy function to see if this file was loaded.
  */
-function _libraries_test_example_1() {
+function _libraries_test_module_example_1() {
 }

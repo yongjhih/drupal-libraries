@@ -486,9 +486,11 @@ function libraries_detect($name) {
   // Re-use the statically cached value of libraries_info() to save memory.
   $library = &libraries_info($name);
 
+  // Exit early if the library was not found.
   if ($library === FALSE) {
     return $library;
   }
+
   // If 'installed' is set, library detection ran already.
   if (isset($library['installed'])) {
     return $library;
@@ -623,6 +625,12 @@ function libraries_load($name, $variant = NULL) {
     else {
       $library = libraries_detect($name);
       cache_set($name, $library, 'cache_libraries');
+    }
+
+    // Exit early if the library was not found.
+    if ($library === FALSE) {
+      $loaded[$name] = $library;
+      return $loaded[$name];
     }
 
     // If a variant was specified, override the top-level properties with the
